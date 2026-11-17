@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>コメントの管理</title>
+<style>
+  :root { --ink: #0E1A3A; --ink-2: #4A5878; --paper: #F4F6FB; --line: #C9D2E8; --blue: #2F6CE5; --ng: #C6362E; --ok: #17805A; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px 20px; background: var(--paper); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  main { max-width: 560px; margin: 0 auto; }
+  h1 { margin: 0 0 18px; font-size: 26px; }
+  #st { padding: 14px 16px; border-radius: 12px; font-size: 20px; font-weight: 700; background: #fff; border: 2px solid var(--line); }
+  #st.on { border-color: var(--ok); color: var(--ok); } #st.off { border-color: var(--ng); color: var(--ng); }
+  .btns { display: grid; gap: 12px; margin: 16px 0 8px; }
+  button { height: 64px; border: 0; border-radius: 14px; font: inherit; font-size: 20px; font-weight: 700; color: #fff; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
+  button:disabled { opacity: .4; cursor: default; }
+  #stop { background: var(--ng); } #go { background: var(--ok); }
+  #msg { min-height: 26px; color: var(--ng); font-weight: 600; }
+  h2 { margin: 26px 0 8px; font-size: 15px; color: var(--ink-2); }
+  ol { margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid var(--line); border-radius: 12px; min-height: 52px; }
+  li { padding: 9px 14px; border-top: 1px solid #E6EAF4; overflow-wrap: anywhere; } li:first-child { border-top: 0; }
+  li.none { color: var(--ink-2); }
+  li { display: flex; gap: 12px; } li time { flex: none; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  li.q span { font-weight: 700; color: #8A5300; }
+  .tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
+  .tools label { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 500; }
+  .tools input { width: 20px; height: 20px; }
+  #copy { height: 40px; padding: 0 16px; font-size: 15px; background: var(--blue); }
+  label { display: block; margin: 0 0 6px; font-weight: 600; }
+  input { width: 100%; height: 52px; padding: 0 14px; border: 2px solid var(--line); border-radius: 12px; font: inherit; }
+  #login button { margin-top: 12px; width: 100%; background: var(--blue); }
+  .hint { margin: 10px 0 0; color: var(--ink-2); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>コメントの管理</h1>
+  <form id="login" hidden>
+    <label for="tk">管理用の合言葉</label>
+    <input id="tk" type="password" autocomplete="off">
+    <button type="submit">入る</button>
+  </form>
+  <div id="panel" hidden>
+    <div id="st">確認中…</div>
+    <div class="btns">
+      <button id="stop" type="button">コメントを止めて、画面から消す</button>
+      <button id="go" type="button">再開する</button>
+    </div>
+    <p class="hint">止めると、流れているコメントがスライドから消え、新しい投稿も受け付けなくなります。</p>
+    <h2 id="lh">コメント（新しい順）</h2>
+    <div class="tools">
+      <label><input type="checkbox" id="q"> 「？」を含むものだけ</label>
+      <button id="copy" type="button">コピー</button>
+    </div>
+    <ol id="list"><li class="none">まだありません</li></ol>
+    <p class="hint">サーバが覚えているのは、直近の1000件までです。サーバが作り直されると、それより前の分はこのページを開いたままの画面にだけ残ります。</p>
+  </div>
+  <p id="msg" role="alert"></p>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  // 合言葉は URL の # の後ろで受け取る（# の後ろはサーバに送られない）。受け取ったら URL から消す
+  let token = '';
+  try { token = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+  try { if (token) { sessionStorage.setItem('tk', token); history.replaceState(null, '', location.pathname); } else token = sessionStorage.getItem('tk') || ''; } catch (e) {}
+  const auth = () => ({ Authorization: 'Bearer ' + token });
+
+  const show = j => {
+    $('st').textContent = j.paused ? '止めています' : 'コメントが流れています';
+    $('st').className = j.paused ? 'off' : 'on';
+    $('stop').disabled = !!j.paused; $('go').disabled = !j.paused;
+  };
+  async function act(action) {
+    $('msg').style.color = ''; $('msg').textContent = '';
+    try {
+      const r = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json', ...auth() }, body: JSON.stringify({ action }) });
+      if (r.status === 401) { fail('合言葉が違います'); return false; }
+      if (!r.ok) throw new Error(r.status);
+      show(await r.json()); return true;
+    } catch (e) { $('msg').textContent = '通信できませんでした。もう一度押してください'; return false; }
+  }
+  function fail(text) { try { sessionStorage.removeItem('tk'); } catch (e) {} token = ''; $('panel').hidden = true; $('login').hidden = false; $('msg').textContent = text; }
+
+  // 一覧は、前に受け取った分の続きだけを取りに行く。サーバが作り直されても、この画面に出ている分は残す
+  let log = [], last = 0;
+  const isQ = t => /[?？]/.test(t);
+  const hms = at => { const d = new Date(at), p = n => String(n).padStart(2, '0'); return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); };
+  const shown = () => $('q').checked ? log.filter(c => isQ(c.t)) : log;
+  function draw() {
+    const ol = $('list'), a = shown().slice(-300).reverse();
+    $('lh').textContent = 'コメント ' + log.length + '件（新しい順）';
+    ol.textContent = '';
+    if (!a.length) { const li = document.createElement('li'); li.className = 'none'; li.textContent = 'まだありません'; ol.appendChild(li); }
+    for (const c of a) {
+      const li = document.createElement('li'), tm = document.createElement('time'), sp = document.createElement('span');
+      if (isQ(c.t)) li.className = 'q';
+      tm.textContent = hms(c.at); sp.textContent = c.t; li.appendChild(tm); li.appendChild(sp); ol.appendChild(li);
+    }
+  }
+  async function list() {
+    if (token && !$('panel').hidden) {
+      try {
+        const j = await (await fetch('/api/poll?all=1&since=' + last, { cache: 'no-store', headers: auth() })).json();
+        show(j);
+        if (j.last < last) last = 0;   // サーバが作り直された。次から取り直す
+        const top = log.length ? log[log.length - 1].id : 0;
+        const add = (j.items || []).filter(c => c && typeof c.t === 'string' && c.id > top);
+        if (add.length) { log = log.concat(add); draw(); }
+        if (j.last > last) last = j.last;
+      } catch (e) {}
+    }
+    setTimeout(list, 2000);
+  }
+  $('q').addEventListener('change', draw);
+  $('copy').addEventListener('click', async () => {
+    const a = shown(), text = '時刻\tコメント\n' + a.map(c => hms(c.at) + '\t' + c.t).join('\n') + '\n';
+    try { await navigator.clipboard.writeText(text); $('msg').style.color = 'var(--ok)'; $('msg').textContent = a.length + '件をコピーしました'; }
+    catch (e) { $('msg').style.color = ''; $('msg').textContent = 'コピーできませんでした'; }
+  });
+  async function enter() { if (await act('check')) { $('login').hidden = true; $('panel').hidden = false; } }
+
+  $('stop').addEventListener('click', () => act('pause'));
+  $('go').addEventListener('click', () => act('resume'));
+  $('login').addEventListener('submit', e => { e.preventDefault(); token = $('tk').value.trim(); try { sessionStorage.setItem('tk', token); } catch (e2) {} enter(); });
+  if (token) enter(); else $('login').hidden = false;
+  list();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!-- =====================================================================
+     スライド本体。1枚 = <section class="slide">
+       data-title : 一覧に出る名前      data-part : 下端に出る章の名前
+       data-track : 機能パートの現在地（1 Gang / 2 Topology / 3 Preemption / 4 階層）
+       data-s="2" : ステップ2で現れる要素        data-key   : スライドの識別名（個別のスタイル指定にも使う）
+     ===================================================================== -->
+
+<!-- 1 -->
+<section class="slide cover" data-key="cover" data-title="表紙" data-part="">
+  <div class="event">CloudNative Days Winter 2026 Keynote</div>
+  <h1>Kubernetes Schedulingの<br>最前線から見る景色</h1>
+  <div class="who">Kensei Nakada<small>@sanposhiho</small><small>Kubernetes SIG Scheduling Tech Lead</small></div>
+  <div class="scene" data-scene="title"></div>
+  <!--cmqr-->
+</section>
+
+<!-- 2 -->
+<section class="slide" data-key="me" data-title="自己紹介" data-part="はじめに">
+  <h2 class="hl hello"><span class="wave">👋</span></h2>
+  <div class="body">
+    <div class="me">
+      <!-- 写真：assets/avatar.(png|jpg|webp) があればビルド時に埋め込む。無ければ表示時に GitHub から読み、読めなければ頭文字のまま -->
+      <div class="avatar"><span>KN</span><img alt="Kensei Nakada" data-photo="https://github.com/sanposhiho.png?size=600"></div>
+      <div>
+        <h3>Kensei Nakada</h3>
+        <div class="handle">@sanposhiho</div>
+        <ul>
+          <li>Kubernetes SIG Scheduling Tech Lead</li>
+          <li>Software Engineer at ??? (🇺🇸)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!--cmqr-->
+</section>
+
+<!-- 3 -->
+<section class="slide" data-key="siglead" data-title="SIG Scheduling と Tech Lead" data-part="はじめに">
+  <h2 class="hl" data-s="0-0">SIG Schedulingは、Podの置き場所を決める部分を担当</h2>
+  <h2 class="hl" data-s="1">Tech Leadは、その技術的な方向と設計に責任を持つ</h2>
+  <div class="siglead">
+    <div class="org">
+      <div class="sigs">
+        <span class="sig">SIG Node</span><span class="sig">SIG Network</span><span class="sig">SIG Storage</span><span class="sig">SIG Apps</span>
+        <span class="sig">SIG Auth</span><span class="sig">SIG Autoscaling</span><span class="sig me2">SIG Scheduling</span><span class="etc">etc.</span>
+      </div>
+      <div class="scope">
+        <h4>SIG Scheduling</h4>
+        <p>Podをどのノードで動かすかを決める</p>
+        <div class="projects"><span class="chip">kube-scheduler</span><span class="chip">Kueue</span><span class="chip">descheduler</span><span class="chip">KWOK</span><span class="etc">etc.</span></div>
+      </div>
+    </div>
+    <div class="tlside" data-s="1">
+      <div class="roles">
+        <div class="role"><h4>Chair</h4><p>運営とプロセス</p></div>
+        <div class="role mine"><h4>Tech Lead</h4><p>技術的な方向と設計</p></div>
+      </div>
+      <div class="duties">
+        <div class="duty"><div class="n">1</div><b>KEP（設計提案）をレビューして承認する</b></div>
+        <div class="duty"><div class="n">2</div><b>実装（Pull Request）をレビューして承認する</b></div>
+        <div class="duty"><div class="n">3</div><b>リリースに何を入れるかを決める</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-key="kep-count" data-title="SIG SchedulingのKEPの数" data-part="はじめに">
+  <h2 class="hl">SIG SchedulingのKEPは、DRAとWASで約5倍に増えた</h2>
+  <!-- 各リリースを対象にした、SIG Scheduling が持つ KEP の数。data-kep は [リリース, 年, WAS, DRA, その他] の並び。
+       data-base は「平均」を出す先頭の本数。数字を直すのはここだけでよい -->
+  <figure class="kchart" data-base="6" data-kep='[["v1.27",2023,0,0,6],["v1.28",2023,0,0,2],["v1.29",2023,0,0,3],["v1.30",2024,0,0,4],["v1.31",2024,0,0,1],["v1.32",2024,0,1,2],["v1.33",2025,0,5,5],["v1.34",2025,0,5,5],["v1.35",2025,2,6,3],["v1.36",2026,6,8,0],["v1.37",2026,7,8,2],["v1.38",2026,5,10,2]]'></figure>
+  <p class="kchart-src">各リリースを対象にした、SIG Scheduling が持つ KEP の数。kubernetes/enhancements の kep.yaml から集計（v1.38 は2026年11月6日時点）</p>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-key="aiml" data-title="AI/MLに向けたコミュニティの取り組み" data-part="はじめに">
+  <h2 class="hl">AI/MLに向けて、Kubernetesコミュニティが動いている</h2>
+  <div class="efforts">
+    <div class="effort" data-on="1:dim">
+      <div class="q">GPUなどのデバイスをどう割り当てるか</div>
+      <h3>DRA<small>Dynamic Resource Allocation</small></h3>
+      <div class="foot"><span class="by">WG Device Management</span>
+        <span class="ico"><span class="gpu sm"></span><span class="ipod sm"></span></span></div>
+    </div>
+    <div class="effort" data-on="1:dim">
+      <div class="q">推論リクエストをどう振り分けるか</div>
+      <h3>Gateway API<br>Inference Extension</h3>
+      <div class="foot"><span class="by">SIG Network</span>
+        <svg class="ico" viewBox="0 0 132 80" width="132" height="80" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 40H98M40 40C62 40 60 66 88 66" stroke="#B4C0DA" stroke-width="5"/>
+          <path d="M16 40H40C62 40 60 14 88 14" stroke="var(--k8s)" stroke-width="6"/>
+          <circle cx="14" cy="40" r="9" fill="var(--ink)"/>
+          <rect x="96" y="2" width="24" height="24" rx="7" fill="var(--k8s)"/>
+          <rect x="96" y="28" width="24" height="24" rx="7" fill="#B4C0DA"/>
+          <rect x="96" y="54" width="24" height="24" rx="7" fill="#B4C0DA"/>
+        </svg></div>
+    </div>
+    <div class="effort main" data-on="1:picked">
+      <div class="q">Podのまとまりをどう置くか</div>
+      <h3>Workload-aware Scheduling</h3>
+      <div class="viz"><span class="iband"><span class="ipod"></span><span class="ipod"></span><span class="ipod"></span><span class="ipod"></span></span></div>
+      <p><span class="nb">関連するPodをひとまとめにして、</span><span class="nb">置き場所を決める</span></p>
+      <div class="foot"><span class="by">SIG Scheduling</span></div>
+    </div>
+    <div class="effort" data-on="1:dim">
+      <div class="q">AIエージェントをどう安全に動かすか</div>
+      <h3>Agent Sandbox</h3>
+      <div class="foot"><span class="by">SIG Apps</span>
+        <svg class="ico" viewBox="0 0 116 80" width="116" height="80" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="110" height="74" rx="18" stroke="var(--ink-2)" stroke-width="5" stroke-dasharray="11 9" stroke-linecap="round"/>
+          <rect x="38" y="20" width="40" height="40" rx="11" fill="var(--k8s)"/>
+        </svg></div>
+    </div>
+    <div class="effort" data-on="1:dim">
+      <div class="q">どのクラスタでも同じように動かせるか</div>
+      <h3>AI Conformance</h3>
+      <div class="foot"><span class="by">SIG Architecture / CNCF</span>
+        <svg class="ico" viewBox="0 0 80 80" width="80" height="80" fill="none" aria-hidden="true">
+          <circle cx="40" cy="40" r="37" fill="var(--ok)"/>
+          <path d="M23 41l12 12 23-25" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-key="thesis" data-title="今日の話：Podを1つずつ → まとまりで" data-part="はじめに">
+  <h2 class="hl">Schedulerは「Podを1つずつ」から「まとまりで」へ</h2>
+  <div class="scene" data-scene="thesis"></div>
+  <div class="agenda" data-s="2">
+    <span>Schedulerの基本</span><span>なぜ変わるのか</span><span>Workload-aware Scheduling</span>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-key="job" data-title="Schedulerの仕事" data-part="Schedulerの基本">
+  <h2 class="hl">kube-schedulerの仕事は、PodをどのNodeに置くか決めること</h2>
+  <div class="scene" data-scene="job"></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-key="filter" data-title="Filter → Score → Bind" data-part="Schedulerの基本">
+  <h2 class="hl">決め方は2段階。Filterで絞って、Scoreで選ぶ</h2>
+  <div class="stages">
+    <div class="stage" data-cur="1"><i>1</i>Filter：置けないNodeを外す</div>
+    <div class="stage" data-cur="2"><i>2</i>Score：残りに点数をつける</div>
+    <div class="stage" data-cur="3"><i>3</i>Bind：最高点のNodeに決める</div>
+  </div>
+  <div class="scene" data-scene="filter"></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-key="onebyone" data-title="Podを1つずつ" data-part="Schedulerの基本">
+  <h2 class="hl">これを、Pod 1つずつ順番に繰り返してきた</h2>
+  <div class="scene" data-scene="onebyone"></div>
+  <div class="cap late2" data-s="2">Webサービスのように「1つ置ければ1つ分働く」ものには、これで十分</div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-key="allornothing" data-title="全員そろわないと始まらない" data-part="なぜ変わるのか">
+  <h2 class="hl">分散学習のPodは、全員そろって初めて仕事が始まる</h2>
+  <div class="scene" data-scene="idle"></div>
+  <div class="cap late" data-s="2">3つは起動したのに、4つ目を待ったまま進まない。<span class="c-ng">GPU 3枚が空回り</span></div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-key="deadlock" data-title="2つのJobが取り合う" data-part="なぜ変わるのか">
+  <h2 class="hl">2つのJobが取り合うと、どちらも始められなくなる</h2>
+  <div class="scene" data-scene="deadlock"></div>
+  <div class="cap" data-s="2">AもBも 3 / 4 で止まる。Podを1つずつ見る限り、まとまりは見えない</div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-key="intree" data-title="外側での解決 → 本体に共通の土台" data-part="なぜ変わるのか">
+  <h2 class="hl" data-s="0-0">これまでは、Kubernetesの外側でそれぞれ解決してきた</h2>
+  <h2 class="hl" data-s="1">そこで、Kubernetes本体に共通の土台を入れる<small>Workload-aware Scheduling。SchedulerがPodのまとまり（Workload）を知る</small></h2>
+  <div class="stack" data-on="1:merged">
+    <div class="tops">
+      <div class="top"><div class="name">Kueue</div><div class="own">独自のGang Scheduling</div></div>
+      <div class="top"><div class="name">Coscheduling plugin</div><div class="own">独自のGang Scheduling</div></div>
+      <div class="top"><div class="name">独自スケジューラ・プラグイン</div><div class="own">独自のGang Scheduling</div></div>
+    </div>
+    <div class="core">Kubernetes本体：共通のAPIと、kube-schedulerの仕組み<small>v1.35（2025年12月）から開発が進んでいる</small></div>
+  </div>
+  <div class="points" data-s="1">
+    <div><b>どのクラスタでも同じAPI</b><span>ディストリビューションを問わず、<br>同じように使える</span></div>
+    <div><b>共通のAPIで、共通の解決策</b><span>複数のコントローラが同じAPIで実装<br>Job・JobSet・LeaderWorkerSet など</span></div>
+    <div><b>判断のロジックも共有へ</b><span><code>scheduler-library</code> の取り組み<br>Kueue なども本体と同じ判断ができる</span></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-key="api" data-title="Workload と PodGroup" data-part="Workload-aware Scheduling">
+  <h2 class="hl">Podを束ねる <code>PodGroup</code> と、その設計図 <code>Workload</code></h2>
+  <div class="scene" data-scene="api"></div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-key="gang" data-title="Gang Scheduling：全員置けるときだけ" data-part="Workload-aware Scheduling" data-track="1">
+  <h2 class="hl">全員置けるときだけ、まとめて置く<small>Gang Scheduling</small></h2>
+  <div class="scene" data-scene="gang"></div>
+  <div class="cap late" data-s="3">中途半端に場所を取らないから、空回りもデッドロックも起きない</div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-key="cycle" data-title="仕組み：PodGroup Scheduling Cycle" data-part="Workload-aware Scheduling" data-track="1">
+  <h2 class="hl">グループ全員の置き場所を、1回でまとめて決める</h2>
+  <div class="stages">
+    <div class="stage" data-cur="1"><i>1</i>全員を仮置きする</div>
+    <div class="stage" data-cur="2"><i>2</i>全員そろったか確認</div>
+    <div class="stage" data-cur="3"><i>3</i>まとめてBind</div>
+  </div>
+  <div class="scene" data-scene="cycle"></div>
+  <div class="cap" data-s="3">足りなければ、仮置きをすべて取り消してキューに戻す</div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-key="tas-why" data-title="Topology：近くに置きたい" data-part="Workload-aware Scheduling" data-track="2">
+  <h2 class="hl">たくさん通信するPodは、近くに置きたい<small>Topology-Aware Scheduling</small></h2>
+  <div class="scene" data-scene="tasWhy"></div>
+  <div class="cap late" data-s="1-1">ばらばらに置かれると、<span class="c-ng">ラックをまたぐ通信</span>が遅い</div>
+  <div class="cap late" data-s="2">同じラックにまとめれば、通信が速く、学習も速い</div>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-key="tas-how" data-title="Topology の仕組み：Nodeの集まりを選ぶ" data-part="Workload-aware Scheduling" data-track="2">
+  <h2 class="hl">選び方は同じ。相手がNodeから「Nodeの集まり」になった</h2>
+  <div class="stages">
+    <div class="stage" data-cur="1"><i>1</i>候補を作る</div>
+    <div class="stage" data-cur="2"><i>2</i>Filter：入らない候補を外す</div>
+    <div class="stage" data-cur="3"><i>3</i>Score：点数で選ぶ</div>
+  </div>
+  <div class="scene" data-scene="tasHow"></div>
+  <div class="cap late2" data-s="3">Rack 3 の広い空きは、次の大きなWorkloadのために残る</div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-key="preempt-pod" data-title="Pod単位のPreemptionの問題" data-part="Workload-aware Scheduling" data-track="3">
+  <h2 class="hl">Pod単位のPreemptionは、Workloadを中途半端に壊す</h2>
+  <div class="scene" data-scene="preemptPod"></div>
+  <div class="cap" data-s="3">残った3つだけでは学習は進まない。<span class="c-ng">GPU 3枚が空回り</span></div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-key="wap" data-title="Workload-Aware Preemption" data-part="Workload-aware Scheduling" data-track="3">
+  <h2 class="hl">追い出すときも、グループ単位で考える<small>Workload-Aware Preemption</small></h2>
+  <div class="scene" data-scene="wap"></div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-key="yaml" data-title="使う側から見ると（Job）" data-part="Workload-aware Scheduling" data-track="3.5">
+  <h2 class="hl">ここまでの3つは、Jobに数行足すだけで使える</h2>
+<div class="yaml"><span class="k">kind</span>: Job
+<span class="k">spec</span>:
+  <span class="k">parallelism</span>: 4
+  <span class="k">scheduling</span>:
+    <span class="k">schedulingPolicy</span>:
+      <span class="hi">gang: {}</span>
+    <span class="k">schedulingConstraints</span>:
+      <span class="k">topology</span>:
+      <span class="hi h2">- key: topology.kubernetes.io/rack</span>
+    <span class="k">disruptionMode</span>:
+      <span class="hi h3">all: {}</span>
+  <span class="dim">template: ...</span></div>
+  <div class="yaml-callouts" style="top:262px">
+    <div class="callout">全員そろったら開始<small>Gang Scheduling</small></div>
+  </div>
+  <div class="yaml-callouts" style="top:412px">
+    <div class="callout c2">同じラックにまとめる<small>Topology-Aware Scheduling</small></div>
+  </div>
+  <div class="yaml-callouts" style="top:562px">
+    <div class="callout c3">追い出すときも全員一緒<small>Workload-Aware Preemption</small></div>
+  </div>
+  <div class="yaml-callouts card" style="top:742px;padding:26px 32px" data-s="1">
+    <p style="color:var(--ink);font-size:32px;font-weight:700"><code>Workload</code> と <code>PodGroup</code> は、<br>Jobコントローラが作る</p>
+    <p style="font-size:26px;margin-top:6px">Jobとの連携は v1.37 でAlpha</p>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-key="cpg" data-title="CompositePodGroup：入れ子" data-part="Workload-aware Scheduling" data-track="4">
+  <h2 class="hl">現実のWorkloadは、グループが入れ子になっている<small>CompositePodGroup</small></h2>
+  <div class="scene" data-scene="cpg"></div>
+  <div class="cap" data-s="0-0">例：LeaderWorkerSet。リーダー（L）1 + ワーカー（W）2 で1組、それが3組</div>
+  <div class="cap" data-s="1-1">組ごとに <code>PodGroup</code> で束ねる</div>
+  <div class="cap" data-s="2">さらに全体を <code>CompositePodGroup</code> で束ねる。最大4階層まで</div>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-key="cpg-policy" data-title="CompositePodGroup：階層ごとのルール" data-part="Workload-aware Scheduling" data-track="4">
+  <h2 class="hl">階層ごとに、別々のルールを書ける<small>CompositePodGroup</small></h2>
+  <div class="scene" data-scene="cpgPolicy"></div>
+  <div class="cap" data-s="1-1">親のルール：3組すべてを同じ Zone に</div>
+  <div class="cap" data-s="2-2">子のルール：1組は同じ Rack に</div>
+  <div class="cap" data-s="3">Gangも階層で書ける。「3組のうち2組そろえば開始」のように <code>minGroupCount: 2</code></div>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-key="shift" data-title="概念の遷移：Pod → Workload" data-part="Workload-aware Scheduling">
+  <h2 class="hl">4つに共通するのは、Schedulerが見る単位が変わったこと</h2>
+  <div class="shift">
+    <div></div><div class="h">Pod scheduling</div><div></div><div class="h new">Workload scheduling</div>
+
+    <div class="r">置く単位</div>
+    <div class="old"><span class="mini"><span class="ipod"></span></span>Pod 1つ</div>
+    <div class="ar">→</div>
+    <div class="new2"><span class="mini"><span class="iband"><span class="ipod"></span><span class="ipod"></span><span class="ipod"></span></span></span><span>PodGroup<small>Podのまとまり</small></span></div>
+
+    <div class="r">置き場所</div>
+    <div class="old"><span class="mini"><span class="itray"><i></i><i></i></span></span>Node 1つ</div>
+    <div class="ar">→</div>
+    <div class="new2"><span class="mini"><span class="igroup"><span class="itray"><i></i><i></i></span><span class="itray"><i></i><i></i></span></span></span><span>Placement<small>Nodeの集まり</small></span></div>
+
+    <div class="r">追い出す単位</div>
+    <div class="old"><span class="mini"><span class="ipod xout"></span></span>Pod 1つずつ</div>
+    <div class="ar">→</div>
+    <div class="new2"><span class="mini"><span class="iband xout"><span class="ipod"></span><span class="ipod"></span><span class="ipod"></span></span></span><span>グループごと<small>1つずつも選べる</small></span></div>
+  </div>
+  <div class="cap" data-s="1">Pod単体のスケジューリングは今まで通り。その上に「まとまり」の視点が加わった</div>
+</section>
+
+<!-- 24 -->
+<section class="slide" data-key="roadmap" data-title="現在地：どこまで来たか" data-part="Workload-aware Scheduling">
+  <h2 class="hl">v1.35で始まり、v1.38では主な機能がBetaにそろう</h2>
+  <!-- v1.38 の列は、開発ブランチ（master）の feature gate と API の状態に合わせる。
+       GA になったら class を「cell ga next」、文字を GA に。Beta は「cell be next」、Alpha は「cell al next」 -->
+  <div class="road">
+    <div></div>
+    <div class="vh">v1.35<small>2025年12月</small></div>
+    <div class="vh">v1.36<small>2026年4月</small></div>
+    <div class="vh">v1.37<small>2026年8月</small></div>
+    <div class="vh next">v1.38<small>2026年12月予定</small></div>
+
+    <div class="f">Workload / PodGroup API<br>Gang Scheduling</div>
+    <div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell be">Beta</div><div class="cell be next">Beta</div>
+
+    <div class="f">Workload-Aware Preemption</div>
+    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell be">Beta</div><div class="cell be next">Beta</div>
+
+    <div class="f">Topology-Aware Scheduling</div>
+    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell be next">Beta</div>
+
+    <div class="f">CompositePodGroup</div>
+    <div class="cell none"></div><div class="cell none"></div><div class="cell al">Alpha</div><div class="cell be next">Beta</div>
+
+    <div class="f">Jobとの連携</div>
+    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell al next">Alpha</div>
+
+    <div class="nowline"><span>いまここ</span></div>
+  </div>
+  <div class="road-foot">
+    ほかにも　<span class="chip jp">DRA：PodGroupでデバイスを共有</span><span class="chip jp">Opportunistic Batching</span><span class="chip jp">Kueue・Cluster Autoscalerとの連携</span>
+    <div style="margin-top:12px;font-size:26px">v1.38 の列は、11月15日時点の開発ブランチの内容です。Beta の機能も、まだデフォルトでは無効です</div>
+  </div>
+</section>
+
+<!-- 25 -->
+<section class="slide" data-key="outlook" data-title="この先の景色" data-part="おわりに">
+  <h2 class="hl">最前線から見えている、この先の景色</h2>
+  <div class="ahead">
+    <div class="aline"></div>
+    <div class="apts">
+      <div class="apt" style="--i:0"><div class="dot"></div><h3>固める</h3><p>APIをGA（安定版）に</p><small>Workload / PodGroup、<br>Preemption</small></div>
+      <div class="apt" style="--i:1"><div class="dot"></div><h3>広げる</h3><p>コントローラを増やす</p><small>JobSet、LeaderWorkerSet、<br>Deployment、StatefulSet など</small></div>
+      <div class="apt" style="--i:2"><div class="dot"></div><h3>そろえる</h3><p>判断のロジックをそろえる</p><small>Kueue、Cluster Autoscaler と<br>scheduler-library で共有</small></div>
+      <div class="apt" style="--i:3"><div class="dot"></div><h3>賢くする</h3><p>置き方をもっと賢く</p><small>第2希望つきの Topology、<br>デバイスを考えた配置、場所の予約</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- 26 -->
+<section class="slide cover closing" data-key="summary" data-title="おわりに" data-part="おわりに">
+  <h1>Thank you</h1>
+  <div class="who">Kensei Nakada<small>@sanposhiho</small></div>
+  <div class="scene" data-scene="outro"></div>
+</section>
