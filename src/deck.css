@@ -41,7 +41,7 @@ body {
 }
 
 /* ---------- 盤面 ---------- */
-#stage { position: fixed; inset: 0; overflow: hidden; background: #0A1228; }
+#stage { position: fixed; inset: 0 0 var(--comment-bar-height, 0px); overflow: hidden; background: #0A1228; }
 #deck {
   position: absolute; left: 0; top: 0;
   width: 1920px; height: 1080px;
@@ -329,7 +329,7 @@ b, strong { font-weight: 700; }
 .callout.c2 { border-color: var(--amber); } .callout.c3 { border-color: var(--rose); }
 
 /* 現在地（リリースごとの段階） */
-.road { position: absolute; left: 96px; right: 96px; top: 252px; display: grid; grid-template-columns: 560px repeat(4, 1fr); column-gap: 10px; row-gap: 18px; align-items: center; }
+.road { position: absolute; left: 96px; right: 96px; top: 252px; display: grid; grid-template-columns: 560px repeat(4, 1fr); column-gap: 10px; row-gap: 14px; align-items: center; }
 .road .vh { text-align: center; font-size: 34px; font-weight: 700; line-height: 1.25; padding-bottom: 8px; }
 .road .vh small { display: block; font-size: 26px; font-weight: 500; color: var(--ink-2); }
 /* v1.38 の列（.next）は少し右に寄せ、手前に「いまここ」の線を通す */
@@ -339,7 +339,7 @@ b, strong { font-weight: 700; }
 .road .nowline span { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -8px); background: var(--k8s); color: #fff;
   font-size: 24px; font-weight: 700; line-height: 1; padding: 9px 18px 10px; border-radius: 999px; white-space: nowrap; }
 .road .f { font-size: 34px; font-weight: 700; line-height: 1.25; }
-.road .cell { height: 76px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; font-weight: 700; }
+.road .cell { height: 68px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; font-weight: 700; }
 .road .none { background: transparent; border: 3px dashed #D3DBEC; }
 .road .al { background: #DCE6FB; color: #2A4FA8; }
 .road .be { background: #5C8CEB; color: #fff; }
@@ -427,7 +427,7 @@ b, strong { font-weight: 700; }
 .closing h1 { top: 330px; font-size: 168px; letter-spacing: 0; }
 
 /* ---------- 操作まわり（スライドの外） ---------- */
-#tools { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
+#tools { position: fixed; right: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); display: flex; gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
 #tools.show { opacity: 1; }
 #tools button { font: 600 14px var(--font-display); color: #fff; background: rgba(14, 26, 58, .82); border: 1px solid rgba(255,255,255,.25);
   border-radius: 10px; padding: 10px 14px; cursor: pointer; min-width: 44px; min-height: 44px; }
@@ -462,14 +462,19 @@ b, strong { font-weight: 700; }
 #ov button.cur { border-color: #8FB0FF; background: #1F3166; }
 #ov button b { color: #8FB0FF; font-variant-numeric: tabular-nums; flex: none; }
 #ov button small { display: block; color: #9FB3E6; font-size: 12px; }
-/* ---------- コメント（スライドの上を流れる） ---------- */
-#cm { position: absolute; inset: 0; z-index: 30; overflow: hidden; pointer-events: none; }
-#cm .c { position: absolute; left: 0; top: 0; white-space: nowrap; font: 700 46px/1.2 var(--font-display); color: #fff; opacity: .93; will-change: transform;
-  transform: translateX(1920px); }
-/* 白い文字に濃いふち（スライドの文字と見分けがつくように）。ふちは、同じ文字を後ろに太く描いて作る */
-#cm .c::before { content: attr(data-t); position: absolute; left: 0; top: 0; z-index: -1; color: #0E1A3A; -webkit-text-stroke: 9px #0E1A3A; }
-/* 投稿用と資料用のQRコード。コメントの層より手前に置き、読み取りを妨げない。
-   投稿用だけは、サーバに繋がっていてコメントを表示・受付しているあいだに出す。 */
+/* ---------- コメント専用バー（スライドの表示領域とは分離） ---------- */
+body.cm-live { --comment-bar-height: clamp(36px, 5vh, 56px); }
+#cm { position: fixed; left: 0; right: 0; bottom: 0; height: var(--comment-bar-height, 0px); display: none;
+  overflow: hidden; background: #101D3C; color: #fff; border-top: 1px solid #33466E; }
+body.cm-live #cm { display: flex; }
+#cm .cm-label { flex: none; display: flex; align-items: center; padding: 0 18px; border-right: 1px solid #33466E;
+  font: 600 clamp(12px, 1.7vh, 18px)/1 var(--font-display); color: #9FB9F2; }
+#cm-track { position: relative; flex: 1; min-width: 0; height: 100%; overflow: hidden; }
+#cm .c { position: absolute; left: 18px; top: 0; display: flex; align-items: center; height: 100%; width: max-content;
+  white-space: nowrap; font: 600 clamp(16px, 2.7vh, 28px)/1.2 var(--font-display); color: #fff; }
+#cm .c.q { color: #FFD479; }
+#cm .c .cm-name { color: #BFC4CE; }
+/* 投稿用と資料用のQRコード。投稿用だけは、サーバに繋がっていてコメントを表示・受付しているあいだに出す。 */
 .qr-links { position: absolute; z-index: 35; right: 96px; top: 64px; display: flex; flex-direction: column; gap: 16px; }
 .qr-card { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 360px; padding: 16px; border-radius: 26px;
   background: var(--surface); border: 3px solid var(--line); color: var(--ink); text-align: center; text-decoration: none; }
@@ -489,12 +494,12 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
 .slide[data-key="me"] .qr-card .qr { width: 264px; height: 264px; }
 .slide[data-key="me"] .qr-card b { font-size: 28px; }
 .slide[data-key="me"] .qr-card span { font-size: 16px; }
-#toast { position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 55; padding: 10px 18px; border-radius: 10px; background: rgba(14, 26, 58, .9); color: #fff;
+#toast { position: fixed; left: 50%; bottom: calc(64px + var(--comment-bar-height, 0px)); transform: translateX(-50%); z-index: 55; padding: 10px 18px; border-radius: 10px; background: rgba(14, 26, 58, .9); color: #fff;
   font: 600 16px var(--font-display); opacity: 0; pointer-events: none; transition: opacity .2s linear; }
 #toast.show { opacity: 1; }
 #blank { position: fixed; inset: 0; background: #000; z-index: 70; display: none; }
 #blank.show { display: block; }
-#help { position: fixed; left: 14px; bottom: 14px; z-index: 50; color: #C9D4EE; background: rgba(14, 26, 58, .82); border-radius: 10px; padding: 10px 14px;
+#help { position: fixed; left: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); z-index: 50; color: #C9D4EE; background: rgba(14, 26, 58, .82); border-radius: 10px; padding: 10px 14px;
   font-size: 13px; line-height: 1.6; opacity: 0; transition: opacity .25s linear; pointer-events: none; }
 #help.show { opacity: 1; }
 

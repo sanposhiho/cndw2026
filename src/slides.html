@@ -323,7 +323,10 @@
 <!-- 24 -->
 <section class="slide" data-key="roadmap" data-title="現在地：どこまで来たか" data-part="Workload-aware Scheduling">
   <h2 class="hl">v1.35で始まり、v1.38では主な機能がBetaにそろう</h2>
-  <!-- v1.38 の列は、開発ブランチ（master）の feature gate と API の状態に合わせる。
+  <!-- v1.38 の列は、2026-11-17 時点の kubernetes/kubernetes master（67dc8f12b970187a4b3f888328be62723714fb3a）の feature gate と API の状態。
+       Workload / Gang: KEP-4671、独立した PodGroup API: KEP-5832（v1.36）→ KEP-4671 に統合。
+       Preemption: KEP-5710、Topology: KEP-5732、CompositePodGroup: KEP-6012、Job: KEP-5547 / 6089。
+       Job 連携の Beta 昇格: https://github.com/kubernetes/kubernetes/pull/143188
        GA になったら class を「cell ga next」、文字を GA に。Beta は「cell be next」、Alpha は「cell al next」 -->
   <div class="road">
     <div></div>
@@ -332,8 +335,11 @@
     <div class="vh">v1.37<small>2026年8月</small></div>
     <div class="vh next">v1.38<small>2026年12月予定</small></div>
 
-    <div class="f">Workload / PodGroup API<br>Gang Scheduling</div>
+    <div class="f">Workload API<br>Gang Scheduling</div>
     <div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell be">Beta</div><div class="cell be next">Beta</div>
+
+    <div class="f">独立したPodGroup API</div>
+    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell be">Beta</div><div class="cell be next">Beta</div>
 
     <div class="f">Workload-Aware Preemption</div>
     <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell be">Beta</div><div class="cell be next">Beta</div>
@@ -345,13 +351,13 @@
     <div class="cell none"></div><div class="cell none"></div><div class="cell al">Alpha</div><div class="cell be next">Beta</div>
 
     <div class="f">Jobとの連携</div>
-    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell al next">Alpha</div>
+    <div class="cell none"></div><div class="cell al">Alpha</div><div class="cell al">Alpha</div><div class="cell be next">Beta</div>
 
     <div class="nowline"><span>いまここ</span></div>
   </div>
   <div class="road-foot">
     ほかにも　<span class="chip jp">DRA：PodGroupでデバイスを共有</span><span class="chip jp">Opportunistic Batching</span><span class="chip jp">Kueue・Cluster Autoscalerとの連携</span>
-    <div style="margin-top:12px;font-size:26px">v1.38 の列は、11月15日時点の開発ブランチの内容です。Beta の機能も、まだデフォルトでは無効です</div>
+    <div style="margin-top:12px;font-size:26px">v1.38は2026年11月17日時点の開発版です。表中のBeta機能もデフォルトでは無効です</div>
   </div>
 </section>
 

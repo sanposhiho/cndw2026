@@ -15,8 +15,11 @@
   main { max-width: 520px; margin: 0 auto; }
   h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.3; letter-spacing: .01em; }
   .lead { margin: 0 0 26px; color: #B4C2E6; font-size: 15px; }
-  form { display: flex; gap: 10px; }
-  input { flex: 1; min-width: 0; height: 56px; padding: 0 16px; border: 2px solid transparent; border-radius: 14px; background: #fff; color: var(--ink); font: inherit; font-size: 18px; }
+  form { display: grid; gap: 14px; }
+  .field { display: grid; gap: 6px; color: #B4C2E6; font-size: 14px; }
+  .compose { display: flex; gap: 10px; }
+  input { flex: 1; width: 100%; min-width: 0; height: 56px; padding: 0 16px; border: 2px solid transparent; border-radius: 14px; background: #fff; color: var(--ink); font: inherit; font-size: 18px; }
+  #name { height: 48px; font-size: 16px; }
   input:focus-visible { outline: none; border-color: #8FB0FF; }
   button { font: inherit; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .go { height: 56px; padding: 0 22px; border-radius: 14px; background: var(--blue); color: #fff; font-weight: 700; font-size: 17px; white-space: nowrap; }
@@ -36,11 +39,20 @@
 <body>
 <main>
   <h1>コメントや質問はこちらから！</h1>
-  <p class="lead">送ったコメントが、キーノート「Kubernetes Schedulingの最前線から見る景色」のスライドの上を流れます。</p>
+  <p class="lead">送ったコメントが、キーノート「Kubernetes Schedulingの最前線から見る景色」のスライド下部にあるコメントバーに表示されます。</p>
 
   <form id="f" autocomplete="off">
-    <input id="t" type="text" maxlength="40" enterkeyhint="send" placeholder="コメントを書く" aria-label="コメント" autocapitalize="off">
-    <button class="go" id="go" type="submit">送る</button>
+    <div class="field">
+      <label for="name">ニックネーム(任意)</label>
+      <input id="name" type="text" maxlength="20" placeholder="ニックネーム" autocapitalize="off">
+    </div>
+    <div class="field">
+      <label for="t">コメント</label>
+      <div class="compose">
+        <input id="t" type="text" maxlength="40" enterkeyhint="send" placeholder="コメント" autocapitalize="off">
+        <button class="go" id="go" type="submit">送る</button>
+      </div>
+    </div>
   </form>
   <div class="row"><span id="msg" role="status" aria-live="polite"></span><span id="n">0 / 40</span></div>
 
@@ -48,7 +60,7 @@
   <div class="quick" id="q"></div>
 
   <div class="note">
-    <p>コメントは会場のスクリーンと配信に映ります。40文字まで送れます。</p>
+    <p>名前とコメントは会場のスクリーンと配信に映ります。名前は空欄でも送れます。コメントは40文字まで送れます。</p>
     <p>このページは、WAIWAI広場の OSS Showcase の Kubernetes クラスタで動いています。</p>
   </div>
 </main>
@@ -57,7 +69,7 @@
   const $ = id => document.getElementById(id);
   const QUICK = ['👏', '88888888', 'なるほど', 'わかりやすい', 'すごい', '草', '🎉'];
   const MSG = { paused: 'いまはコメントを受け付けていません', slow_down: '少し待ってから送ってください', busy: '混み合っています。少し待ってから送ってください',
-    too_long: '40文字までにしてください', empty: 'コメントを書いてください' };
+    too_long: '40文字までにしてください', name_too_long: '名前は20文字までにしてください', empty: 'コメントを書いてください' };
   let who = '';
   try { who = localStorage.getItem('who') || ''; if (!who) { who = crypto.randomUUID(); localStorage.setItem('who', who); } }
   catch (e) { who = String(Math.random()).slice(2) + Date.now(); }
@@ -66,11 +78,13 @@
   const say = (text, ng) => { const m = $('msg'); m.textContent = text; m.className = ng ? 'ng' : ''; clearTimeout(timer); if (text && !ng) timer = setTimeout(() => { m.textContent = ''; }, 2500); };
   const lock = on => { paused = on; for (const e of document.querySelectorAll('input, button')) e.disabled = on; if (on) say(MSG.paused, true); else if ($('msg').textContent === MSG.paused) say(''); };
 
-  async function post(text) {
+  async function post(text, quick = false) {
     text = text.trim();
     if (!text) return say(MSG.empty, true);
+    const name = $('name').value.trim();
+    if ([...name].length > 20) return say(MSG.name_too_long, true);
     try {
-      const r = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: text, c: who }) });
+      const r = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: text, name, quick, c: who }) });
       const j = await r.json().catch(() => ({}));
       if (r.ok) { say('送りました'); return true; }
       if (j.error === 'paused') lock(true); else say(MSG[j.error] || '送れませんでした。もう一度試してください', true);
@@ -80,7 +94,7 @@
 
   $('f').addEventListener('submit', async e => { e.preventDefault(); const t = $('t'); if (await post(t.value)) { t.value = ''; $('n').textContent = '0 / 40'; } if (!paused) t.focus(); });
   $('t').addEventListener('input', e => { $('n').textContent = [...e.target.value].length + ' / 40'; });
-  for (const q of QUICK) { const b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.addEventListener('click', () => post(q)); $('q').appendChild(b); }
+  for (const q of QUICK) { const b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.addEventListener('click', () => post(q, true)); $('q').appendChild(b); }
 
   // 止められているあいだは、入力欄を使えなくする
   async function watch() {

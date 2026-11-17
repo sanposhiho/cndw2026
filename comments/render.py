@@ -41,7 +41,7 @@ metadata:
 data:
 """ + "".join(f"  {f}: |\n{block(data[f])}" for f in files)
 
-app = f"""# 発表中のスライドに、聴衆のコメントを右から左へ流すための小さなサーバ。
+app = f"""# 発表中のスライド下部に、聴衆のコメントを表示するための小さなサーバ。
 # 投稿ページ（/）、投稿の受付、スライドへの受け渡し、一括停止（/admin）を持つ。状態はメモリだけで、Pod が作り直されると消える。
 apiVersion: apps/v1
 kind: Deployment

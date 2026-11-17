@@ -11,6 +11,7 @@ const PORT = Number(process.env.PORT || 8080);
 // 管理用の合言葉の SHA-256（16進）。合言葉そのものはここにも YAML にも書かない。空なら管理の操作はできない
 const ADMIN_SHA256 = String(process.env.ADMIN_SHA256 || '').trim().toLowerCase();
 const MAX_LEN = 40;          // 1コメントの文字数
+const MAX_NAME_LEN = 20;     // 任意の表示名の文字数（コメント本文とは別）
 const KEEP = 1000;           // 覚えておく件数（管理ページの一覧で見返せる分）
 const FRESH_MS = 15000;      // スライドに渡すのは、この時間より新しいものだけ（繋ぎ直したときに古いものを流さない）
 const MIN_GAP_MS = 1500;     // 同じ人が続けて送れる間隔
@@ -20,7 +21,7 @@ const BODY_MAX = 2048;
 const page = name => fs.readFileSync(path.join(__dirname, name));
 const PAGES = { '/': page('post.html'), '/admin': page('admin.html') };
 
-let items = [];              // { id, t, at }
+let items = [];              // { id, t, name, quick, at }
 let lastId = 0;
 let paused = false;          // 止めている間は投稿を受け付けず、スライドにも渡さない
 let epoch = Date.now();      // 変わったら、スライドは流れているコメントを全部消す
@@ -89,23 +90,27 @@ async function handle(req, res) {
     // 管理ページ用：覚えている分を、止めている間も、古いものも含めて返す（since より後だけ）。投稿の時刻も付ける
     if (url.searchParams.get('all') === '1' && isAdmin(req)) {
       const from = Number.isFinite(since) && since > 0 ? since : 0;
-      return send(res, 200, { ...state(), items: items.filter(c => c.id > from).map(c => ({ id: c.id, t: c.t, at: c.at })) });
+      return send(res, 200, { ...state(), items: items.filter(c => c.id > from).map(c => ({ id: c.id, t: c.t, name: c.name, quick: c.quick, at: c.at })) });
     }
     let out = [];
     if (!paused && url.searchParams.has('since') && Number.isFinite(since) && since >= 0) out = items.filter(c => c.id > since && now - c.at < FRESH_MS).slice(-30);
-    return send(res, 200, { ...state(), items: out.map(c => ({ id: c.id, t: c.t })) }, CORS);
+    return send(res, 200, { ...state(), items: out.map(c => ({ id: c.id, t: c.t, name: c.name, quick: c.quick })) }, CORS);
   }
 
   if (req.method === 'POST' && p === '/api/comments') {
     if (paused) return send(res, 503, { error: 'paused' });
     let body;
     try { body = await readJson(req); } catch (e) { return send(res, 400, { error: 'bad_request' }); }
-    if (typeof body.t !== 'string') return send(res, 400, { error: 'bad_request' });
+    if (typeof body.t !== 'string' || (body.name !== undefined && typeof body.name !== 'string')) return send(res, 400, { error: 'bad_request' });
+    if (body.quick !== undefined && typeof body.quick !== 'boolean') return send(res, 400, { error: 'bad_request' });
     const t = clean(body.t);
+    const name = clean(body.name || '');
+    const quick = body.quick === true;
     const who = (typeof body.c === 'string' ? clean(body.c).slice(0, 64) : '') || 'anon';
     const len = [...t].length;
     if (!len) { stats.rejected++; return send(res, 400, { error: 'empty' }); }
     if (len > MAX_LEN) { stats.rejected++; return send(res, 400, { error: 'too_long', max: MAX_LEN }); }
+    if ([...name].length > MAX_NAME_LEN) { stats.rejected++; return send(res, 400, { error: 'name_too_long', max: MAX_NAME_LEN }); }
     const now = Date.now();
     if (now - (seen.get(who) || 0) < MIN_GAP_MS) { stats.rejected++; return send(res, 429, { error: 'slow_down' }); }
     const sec = Math.floor(now / 1000);
@@ -113,7 +118,7 @@ async function handle(req, res) {
     if (bucket.n >= GLOBAL_PER_SEC) { stats.rejected++; return send(res, 429, { error: 'busy' }); }
     bucket.n++; seen.set(who, now);
     lastId = Math.max(lastId + 1, now);          // 時刻をもとにした番号。作り直されても番号が戻らない
-    items.push({ id: lastId, t, at: now });
+    items.push({ id: lastId, t, name, quick, at: now });
     if (items.length > KEEP) items = items.slice(-KEEP);
     stats.ok++;
     return send(res, 200, { ok: true });

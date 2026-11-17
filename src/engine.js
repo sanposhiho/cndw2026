@@ -361,68 +361,86 @@ const Deck = (() => {
     toolsTimer = setTimeout(() => { $('tools').classList.remove('show'); $('help').classList.remove('show'); }, 2800);
   }
 
-  /* ---------- コメント（会場からの投稿を、スライドの上に右から左へ流す） ----------
+  /* ---------- コメント（スライドとは別の下部バーに、1件ずつ表示する） ----------
      <body data-comments="https://…"> のサーバを1秒おきに読みに行く。?comments=URL で差し替え、?comments=off で無効。
      サーバに繋がらないあいだは何も出さない（投稿用QRコードも出さない）。発表はそのまま続けられる。
-     C キーで、流れているコメントと投稿用QRコードをまとめて消す／戻す。資料用QRコードは常に出す */
-  const CM = { url: '', on: true, live: false, paused: false, since: null, epoch: null, fail: 0, queue: [], lanes: [], lastLane: -1, count: 0, layer: null, log: [] };
-  const CM_LANE = 74, CM_LANES = 8, CM_DUR = 7000, CM_MAX = 12, CM_GAP = 70, CM_QUEUE = 12;   // 待ちが長いと、話が進んだあとに遅れて出てしまうので、待たせる数は少なくする
-  // 流す範囲は、見出しの下から下の一言の上まで（図に使っている範囲と同じ）。見出しと一言には重ねない
-  function cmArea() {
-    const a = slides[cur] && slides[cur]._area;
-    const top = a ? a.y0 + 8 : 270, bottom = a ? a.y1 - 6 : 880;
-    return { top, n: clamp(Math.floor((bottom - top) / CM_LANE), 1, CM_LANES) };
-  }
+     C キーで、コメントと投稿用QRコードをまとめて消す／戻す。資料用QRコードは常に出す */
+  const CM = { url: '', on: true, live: false, paused: false, since: null, epoch: null, fail: 0, queue: [], current: null, currentComment: null, animation: null, timer: null, layer: null, log: [] };
+  const CM_DUR = 7000, CM_HOLD = 2000, CM_SPEED = 60, CM_QUEUE = 3;
+  // 通常は7秒静止。長文だけ毎秒60pxで送り、先頭・末尾を各2秒止める。表示待ちは手入力を優先して3件。
   function cmPaint() {
-    document.body.classList.toggle('cm-live', CM.on && CM.live && !CM.paused);
+    const live = CM.on && CM.live && !CM.paused;
+    const changed = document.body.classList.contains('cm-live') !== live;
+    document.body.classList.toggle('cm-live', live);
+    if (changed) fit();   // バーの高さを除いた領域に、縦横比を保ってスライドを収める。
+    if (live) cmPump();
+    // 待ち枠を超えたら、定型コメントを古い順に外す。手入力だけなら、その中で最新を残す。
+    while (CM.queue.length > CM_QUEUE) {
+      const quick = CM.queue.findIndex(c => c.quick);
+      CM.queue.splice(quick < 0 ? 0 : quick, 1);
+    }
   }
   function cmClear() {
-    CM.queue = []; CM.lanes = []; CM.lastLane = -1; CM.count = 0;
-    if (CM.layer) CM.layer.textContent = '';
+    CM.queue = [];
+    cmStopCurrent();
   }
-  // 重ならずに流せる行からランダムに選ぶ。候補が複数あれば、直前と同じ行は避ける。置けなければ false
-  function cmPlace(text) {
-    const e = document.createElement('div'); e.className = 'c'; e.textContent = text; e.dataset.t = text;
-    CM.layer.appendChild(e);
-    const w = e.offsetWidth, now = performance.now(), speed = (W + w) / CM_DUR, area = cmArea();
-    const available = [];
-    for (let i = 0; i < area.n; i++) {
-      const L = CM.lanes[i];
-      if (L) {
-        const entered = (now - L.t0) * L.speed >= L.w + CM_GAP;   // 前のコメントが、右端から入り切ったか
-        const catches = now + W / speed < L.t0 + CM_DUR;           // 前のコメントが消える前に、追いついてしまうか
-        if (!entered || catches) continue;
-      }
-      available.push(i);
+  function cmStopCurrent() {
+    clearTimeout(CM.timer); CM.timer = null;
+    if (CM.animation) { CM.animation.onfinish = null; CM.animation.cancel(); CM.animation = null; }
+    if (CM.current) { CM.current.remove(); CM.current = null; }
+    CM.currentComment = null;
+  }
+  function cmResize() {
+    if (!CM.current) return;
+    CM.queue.unshift(CM.currentComment);
+    cmStopCurrent(); cmPump(true);   // 画面幅が変わっても、表示中のコメントは割り込まず先頭から表示する。
+  }
+  // 前の1件が消えたら次を表示する。行の選択や、コメント同士の位置・速度の比較はしない。
+  function cmPump(resume = false) {
+    if (!CM.layer || CM.current || !CM.queue.length || !document.body.classList.contains('cm-live')) return;
+    const typed = resume ? -1 : CM.queue.findIndex(c => !c.quick);
+    const [c] = CM.queue.splice(typed < 0 ? 0 : typed, 1);   // 次の1件は手入力を優先。同じ種類では到着順。
+    const e = document.createElement('div'); e.className = 'c' + (cmIsQ(c.t) ? ' q' : '');
+    const name = cmName(c);
+    if (name) {
+      const author = document.createElement('span'); author.className = 'cm-name'; author.textContent = name;
+      e.appendChild(author);
     }
-    if (!available.length) { e.remove(); return false; }
-    const choices = available.length > 1 ? available.filter(i => i !== CM.lastLane) : available;
-    const i = choices[Math.floor(Math.random() * choices.length)];
-    CM.lastLane = i;
-    CM.lanes[i] = { t0: now, w, speed };
-    e.style.top = (area.top + i * CM_LANE) + 'px';
-    CM.count++;
-    const done = () => { if (e.parentNode) { e.remove(); CM.count = Math.max(0, CM.count - 1); cmPump(); } };
-    if (e.animate) e.animate([{ transform: `translateX(${W}px)` }, { transform: `translateX(${-w}px)` }], { duration: CM_DUR, easing: 'linear', fill: 'forwards' }).onfinish = done;
-    else setTimeout(done, 3000);
-    return true;
+    e.appendChild(document.createTextNode((name ? ': ' : '') + c.t));
+    CM.current = e; CM.currentComment = c;
+    CM.layer.appendChild(e);
+    const done = () => {
+      if (CM.current !== e) return;
+      e.remove(); CM.current = null; CM.currentComment = null; CM.animation = null; CM.timer = null;
+      cmPump();
+    };
+    const overflow = Math.max(0, e.offsetWidth - (CM.layer.clientWidth - 36));   // 左右に18pxの余白。
+    if (overflow > 0 && e.animate) {
+      const duration = Math.max(CM_DUR, CM_HOLD * 2 + overflow / CM_SPEED * 1000);
+      const end = `translateX(-${overflow}px)`;
+      CM.animation = e.animate([
+        { transform: 'translateX(0)', offset: 0 },
+        { transform: 'translateX(0)', offset: CM_HOLD / duration },
+        { transform: end, offset: 1 - CM_HOLD / duration },
+        { transform: end, offset: 1 },
+      ], { duration, easing: 'linear', fill: 'forwards' });
+      CM.animation.onfinish = done;
+    } else {
+      CM.timer = setTimeout(done, CM_DUR);
+    }
   }
-  function cmPump() {
-    clearTimeout(CM.pump);
-    while (CM.queue.length && CM.count < CM_MAX && cmPlace(CM.queue[0])) CM.queue.shift();
-    if (CM.queue.length) CM.pump = setTimeout(cmPump, 250);
+  function cmAdd(c) {
+    if (!CM.on || CM.paused || !CM.layer || !c || typeof c.t !== 'string' || !c.t) return;
+    CM.queue.push({ t: c.t.slice(0, 80), name: cmName(c), quick: c.quick === true });
+    // 今回受信した分をすべて入れてから cmPaint で選ぶ。同じ受信内でも手入力を優先する。
   }
-  function cmAdd(text) {
-    if (!CM.on || CM.paused || !CM.layer || typeof text !== 'string' || !text) return;
-    CM.queue.push(text.slice(0, 80));
-    if (CM.queue.length > CM_QUEUE) CM.queue.splice(0, CM.queue.length - CM_QUEUE);   // たまりすぎたら古いものから捨てる
-    cmPump();
-  }
-  /* 受け取ったコメントの記録。流れて消えたあとも、一覧で見返せるようにする（質問を見逃さないため）。
+  /* 受け取ったコメントの記録。表示が消えたあとも、一覧で見返せるようにする（質問を見逃さないため）。
      表示を消しているあいだ（C）に届いた分も記録する。このブラウザの中に残るので、開き直しても消えない。
      スライドを開いていなかった間の投稿は、ここには入らない（サーバの管理ページで見られる） */
   const CM_LS = 'cndw2026-comments-v1', CM_KEEP = 2000;
   const cmIsQ = t => /[?？]/.test(t);
+  const cmName = c => typeof c.name === 'string' ? [...c.name.trim()].slice(0, 20).join('') : '';
+  const cmDisplay = c => (cmName(c) ? cmName(c) + ': ' : '') + c.t;
   const hms = at => { const d = new Date(at), p = n => String(n).padStart(2, '0'); return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; };
   function cmLoadLog() {
     try { const a = JSON.parse(localStorage.getItem(CM_LS) || '[]'); if (Array.isArray(a)) CM.log = a.filter(c => c && typeof c.t === 'string' && Number.isFinite(c.at)).slice(-CM_KEEP); }
@@ -436,7 +454,7 @@ const Deck = (() => {
     if (!c || typeof c.t !== 'string' || !c.t) return false;
     const id = Number(c.id) || 0, last = CM.log.length ? CM.log[CM.log.length - 1].id : 0;
     if (id && id <= last) return false;   // 同じものを二度入れない
-    CM.log.push({ id: id || Date.now(), t: c.t.slice(0, 80), at: Date.now(), n: cur + 1 });
+    CM.log.push({ id: id || Date.now(), t: c.t.slice(0, 80), name: cmName(c), quick: c.quick === true, at: Date.now(), n: cur + 1 });
     if (CM.log.length > CM_KEEP) CM.log.splice(0, CM.log.length - CM_KEEP);
     return true;
   }
@@ -451,11 +469,11 @@ const Deck = (() => {
   function cmDrawList(toEnd) {
     const ol = $('cl-list'), a = cmShown(), stick = toEnd || ol.scrollTop + ol.clientHeight >= ol.scrollHeight - 8;
     $('cl-h').textContent = `コメント一覧（${CM.log.length}件${$('cl-q').checked ? `、うち「？」を含むもの ${a.length}件` : ''}）`;
-    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${c.n}枚目</i><span>${esc(c.t)}</span></li>`).join('')
+    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${c.n}枚目</i><span>${esc(cmDisplay(c))}</span></li>`).join('')
       : '<li class="none">まだありません</li>';
     if (stick) ol.scrollTop = ol.scrollHeight;   // いちばん新しいものが見える位置に
   }
-  const cmText = () => '時刻\tスライド\tコメント\n' + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${c.t}`).join('\n') + '\n';
+  const cmText = () => '時刻\tスライド\t名前\tコメント\n' + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${cmName(c)}\t${c.t}`).join('\n') + '\n';
   function cmOpenList() {
     if (!CM.url) return;
     const cl = $('cl');
@@ -512,7 +530,7 @@ const Deck = (() => {
       if (CM.paused) cmClear();
       if (Number.isFinite(j.last)) CM.since = j.last;
       let got = 0;
-      (j.items || []).forEach(c => { if (cmLog(c)) got++; cmAdd(c && c.t); });
+      (j.items || []).forEach(c => { if (cmLog(c)) got++; cmAdd(c); });
       if (got) { cmSaveLog(); cmListPaint(); }
     } catch (e) {
       CM.fail++;
@@ -540,8 +558,7 @@ const Deck = (() => {
     try { const q = new URLSearchParams(location.search).get('comments'); if (q != null) url = q; } catch (e) { /* そのまま */ }
     if (!url || url === 'off' || !/^https?:\/\//.test(url) || !window.fetch) return;
     CM.url = url.replace(/\/+$/, '');
-    CM.layer = document.createElement('div'); CM.layer.id = 'cm'; CM.layer.setAttribute('aria-hidden', 'true');
-    deck.appendChild(CM.layer);
+    CM.layer = $('cm-track');
     cmLoadLog();
     $('cl').addEventListener('click', e => {
       const b = e.target.closest('[data-act]'); if (!b) { if (e.target === $('cl')) cmCloseList(); return; }
@@ -575,7 +592,7 @@ const Deck = (() => {
     buildOverview();
     initComments();
     fit();
-    addEventListener('resize', fit);
+    addEventListener('resize', () => { fit(); cmResize(); });
     addEventListener('orientationchange', fit);
     if (window.ResizeObserver) new ResizeObserver(fit).observe($('stage'));
     addEventListener('keydown', onKey);

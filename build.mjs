@@ -24,7 +24,7 @@ const slides = photo
   ? src('slides.html').replace(/data-photo="[^"]*"/, `data-photo="data:${mime(photo)};base64,${readFileSync(photo).toString('base64')}"`)
   : src('slides.html');
 console.log(photo ? `写真を埋め込みました: ${photo}` : '写真なし: assets/avatar.png などを置くと埋め込みます（無い場合は表示時に GitHub から読みます）');
-// コメントを流す機能。URL が空ならコメント機能と投稿用QRコードを入れない。
+// コメント表示機能。URL が空ならコメント機能と投稿用QRコードを入れない。
 // URL を変えたら tools/qr.py で対応するSVGも作り直す（README参照）。
 const COMMENTS_URL = 'https://comments.showcase.cloudnativedays.jp';
 const SLIDES_URL = 'https://sanposhiho.showcase.cloudnativedays.jp';
@@ -51,6 +51,10 @@ ${slidesOut}
 </div>
 </div>
 
+${COMMENTS_URL ? `<aside id="cm" aria-label="コメントバー">
+  <span class="cm-label">コメント</span>
+  <div id="cm-track" aria-hidden="true"></div>
+</aside>\n` : ''}
 <div id="ov"><h2>スライド一覧（選ぶと移動、Esc で閉じる）</h2><div class="grid" id="ov-grid"></div></div>
 <div id="blank"></div>
 ${COMMENTS_URL ? `<div id="cl" role="dialog" aria-modal="true" aria-labelledby="cl-h"><div class="box">

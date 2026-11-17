@@ -49,7 +49,7 @@
       <button id="stop" type="button">コメントを止めて、画面から消す</button>
       <button id="go" type="button">再開する</button>
     </div>
-    <p class="hint">止めると、流れているコメントがスライドから消え、新しい投稿も受け付けなくなります。</p>
+    <p class="hint">止めると、表示中のコメントがスライドから消え、新しい投稿も受け付けなくなります。</p>
     <h2 id="lh">コメント（新しい順）</h2>
     <div class="tools">
       <label><input type="checkbox" id="q"> 「？」を含むものだけ</label>
@@ -70,7 +70,7 @@
   const auth = () => ({ Authorization: 'Bearer ' + token });
 
   const show = j => {
-    $('st').textContent = j.paused ? '止めています' : 'コメントが流れています';
+    $('st').textContent = j.paused ? '止めています' : 'コメントを受け付けています';
     $('st').className = j.paused ? 'off' : 'on';
     $('stop').disabled = !!j.paused; $('go').disabled = !j.paused;
   };
@@ -88,6 +88,7 @@
   // 一覧は、前に受け取った分の続きだけを取りに行く。サーバが作り直されても、この画面に出ている分は残す
   let log = [], last = 0;
   const isQ = t => /[?？]/.test(t);
+  const nameOf = c => typeof c.name === 'string' ? c.name : '';
   const hms = at => { const d = new Date(at), p = n => String(n).padStart(2, '0'); return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); };
   const shown = () => $('q').checked ? log.filter(c => isQ(c.t)) : log;
   function draw() {
@@ -98,7 +99,8 @@
     for (const c of a) {
       const li = document.createElement('li'), tm = document.createElement('time'), sp = document.createElement('span');
       if (isQ(c.t)) li.className = 'q';
-      tm.textContent = hms(c.at); sp.textContent = c.t; li.appendChild(tm); li.appendChild(sp); ol.appendChild(li);
+      const name = nameOf(c);
+      tm.textContent = hms(c.at); sp.textContent = (name ? name + ': ' : '') + c.t; li.appendChild(tm); li.appendChild(sp); ol.appendChild(li);
     }
   }
   async function list() {
@@ -117,7 +119,7 @@
   }
   $('q').addEventListener('change', draw);
   $('copy').addEventListener('click', async () => {
-    const a = shown(), text = '時刻\tコメント\n' + a.map(c => hms(c.at) + '\t' + c.t).join('\n') + '\n';
+    const a = shown(), text = '時刻\t名前\tコメント\n' + a.map(c => hms(c.at) + '\t' + nameOf(c) + '\t' + c.t).join('\n') + '\n';
     try { await navigator.clipboard.writeText(text); $('msg').style.color = 'var(--ok)'; $('msg').textContent = a.length + '件をコピーしました'; }
     catch (e) { $('msg').style.color = ''; $('msg').textContent = 'コピーできませんでした'; }
   });
