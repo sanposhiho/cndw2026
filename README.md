@@ -25,7 +25,7 @@ python3 comments/render.py
 
 ### OSS Showcase で資料も公開する
 
-`showcase/apps/sanposhiho/` は、資料を `https://sanposhiho.showcase.cloudnativedays.jp` で配信するための構成です。現時点では公開用ファイルの準備とローカル検証までで、PR は作成していません。
+`showcase/apps/sanposhiho/` は、資料を `https://sanposhiho.showcase.cloudnativedays.jp` で配信するための構成です。運営へのPRは [資料公開 #37](https://github.com/cloudnativedaysjp/oss-showcase/pull/37) と [コメントアプリ #36](https://github.com/cloudnativedaysjp/oss-showcase/pull/36) です。レビュー・マージ後に公開されます。
 
 | 用途 | 公開時のURL |
 | --- | --- |
