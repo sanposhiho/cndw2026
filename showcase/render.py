@@ -29,7 +29,7 @@ digest = hashlib.sha256("".join(f + "\0" + text for f, text in data.items()).enc
 def block(text):
     if not text.endswith("\n") or "\r" in text:
         raise ValueError("入力ファイルはLFで改行し、末尾にも改行を入れてください")
-    return "".join("    " + line + "\n" for line in text[:-1].split("\n"))
+    return "".join(("    " + line if line else "") + "\n" for line in text[:-1].split("\n"))
 
 
 configmap = f"""# showcase/render.py が生成。server.js とビルド済みの資料。
