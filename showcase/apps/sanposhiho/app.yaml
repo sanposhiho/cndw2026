@@ -13,7 +13,7 @@ spec:
       labels:
         app: sanposhiho
       annotations:
-        slides/code-sha256: "edb1100661c1a8ab6ed4fe22628a4627ff22d79e8aea891128d8ebdbc507a622"
+        slides/code-sha256: "3bc0b1702940739cfb0d03da843e8b3e5ee61fbc2f6e73285def9b95de5e7c60"
     spec:
       automountServiceAccountToken: false
       securityContext:

@@ -337,6 +337,8 @@ const Deck = (() => {
     if (tag === 'TEXTAREA' || tag === 'INPUT') { if (e.key === 'Escape') { tg.blur(); e.preventDefault(); } return; }
     if ($('cl') && $('cl').classList.contains('show')) { if (e.key === 'Escape' || e.key === 'l' || e.key === 'L') { cmCloseList(); e.preventDefault(); } return; }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // QRコードのリンクにフォーカスしているときは、Enter でリンクを開く。
+    if (tag === 'A' && e.key === 'Enter') return;
     const k = e.key, ovOpen = $('ov').classList.contains('show');
     if (ovOpen) { if (k === 'Escape' || k === 'o' || k === 'O') { toggleOv(false); e.preventDefault(); } return; }
     const map = {
@@ -361,8 +363,8 @@ const Deck = (() => {
 
   /* ---------- コメント（会場からの投稿を、スライドの上に右から左へ流す） ----------
      <body data-comments="https://…"> のサーバを1秒おきに読みに行く。?comments=URL で差し替え、?comments=off で無効。
-     サーバに繋がらないあいだは何も出さない（QRコードも出さない）。発表はそのまま続けられる。
-     C キーで、流れているコメントとQRコードをまとめて消す／戻す。サーバ側で止められたときも消える */
+     サーバに繋がらないあいだは何も出さない（投稿用QRコードも出さない）。発表はそのまま続けられる。
+     C キーで、流れているコメントと投稿用QRコードをまとめて消す／戻す。資料用QRコードは常に出す */
   const CM = { url: '', on: true, live: false, paused: false, since: null, epoch: null, fail: 0, queue: [], lanes: [], lastLane: -1, count: 0, layer: null, log: [] };
   const CM_LANE = 74, CM_LANES = 8, CM_DUR = 7000, CM_MAX = 12, CM_GAP = 70, CM_QUEUE = 12;   // 待ちが長いと、話が進んだあとに遅れて出てしまうので、待たせる数は少なくする
   // 流す範囲は、見出しの下から下の一言の上まで（図に使っている範囲と同じ）。見出しと一言には重ねない

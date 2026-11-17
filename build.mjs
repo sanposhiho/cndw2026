@@ -24,16 +24,14 @@ const slides = photo
   ? src('slides.html').replace(/data-photo="[^"]*"/, `data-photo="data:${mime(photo)};base64,${readFileSync(photo).toString('base64')}"`)
   : src('slides.html');
 console.log(photo ? `写真を埋め込みました: ${photo}` : '写真なし: assets/avatar.png などを置くと埋め込みます（無い場合は表示時に GitHub から読みます）');
-// コメントを流す機能。サーバの URL を空にすると、機能ごと入らない（QRコードも出ない）
-// URL を変えたら、python3 tools/qr.py <URL>/ で assets/comments-qr.svg も作り直す
+// コメントを流す機能。URL が空ならコメント機能と投稿用QRコードを入れない。
+// URL を変えたら tools/qr.py で対応するSVGも作り直す（README参照）。
 const COMMENTS_URL = 'https://comments.showcase.cloudnativedays.jp';
-const qrPath = join(root, 'assets', 'comments-qr.svg');
-const qrOn = COMMENTS_URL && existsSync(qrPath);
-if (COMMENTS_URL && !qrOn) console.warn('警告: assets/comments-qr.svg がありません。QRコードなしで作ります（python3 tools/qr.py で作れます）');
-const qrBlock = qrOn
-  ? `<div class="cmqr"><div class="qr">${readFileSync(qrPath, 'utf8').trim()}</div><p><b>質問やコメントはこちら！</b><span>${COMMENTS_URL.replace(/^https?:\/\//, '')}</span></p></div>`
-  : '';
-const slidesOut = slides.replace(/<!--cmqr-->/g, qrBlock);
+const SLIDES_URL = 'https://sanposhiho.showcase.cloudnativedays.jp';
+const qrLink = (file, url, label, kind) =>
+  `<a class="qr-card ${kind}" href="${url}/" target="_blank" rel="noopener noreferrer"><div class="qr">${readFileSync(join(root, 'assets', file), 'utf8').trim()}</div><p><b>${label}</b><span>${url.replace(/^https?:\/\//, '')}</span></p></a>`;
+const qrBlock = `<div class="qr-links">${COMMENTS_URL ? qrLink('comments-qr.svg', COMMENTS_URL, '質問やコメントはこちら！', 'cmqr') : ''}${qrLink('slides-qr.svg', SLIDES_URL, 'スライド資料はこちら！', 'slides-qr')}</div>`;
+const slidesOut = slides.replace(/<!--qr-links-->/g, qrBlock);
 console.log(COMMENTS_URL ? `コメント: ${COMMENTS_URL}` : 'コメント: なし');
 
 const html = `<!DOCTYPE html>
