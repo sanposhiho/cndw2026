@@ -436,7 +436,7 @@ b, strong { font-weight: 700; }
   font: 600 14px var(--font-display); text-decoration: none; }
 #b-lang:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
 
-/* 英語の表紙も右側のQRコードの手前に収める。 */
+/* 英語の表紙の見出しを2行に収める。 */
 html[lang="en"] .cover:not(.closing) h1 { font-size: 82px; max-width: 1320px; }
 html[lang="en"] .effort.main .nb { white-space: normal; }
 @media print { #b-lang { display: none !important; } }
