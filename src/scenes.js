@@ -32,12 +32,12 @@ SCENES.thesis = {
   build(b) {
     b.pod('one', [344, 372], { cls: 'lg' });
     b.text('l1', 170, 532, 'Pod scheduling', 'big center', 460);
-    b.text('l1s', 170, 600, 'Podを1つずつ見て、<br>どのNodeに置くか決める', 'sub center', 460);
+    b.text('l1s', 170, 600, localize('Podを1つずつ見て、<br>どのNodeに置くか決める', 'Choose a node<br>for each Pod individually'), 'sub center', 460);
     b.arrow('ar', [650, 428], [810, 428]);
     b.band('band', 861, 364, 398, 128, '');
     row(887, 390, 4).forEach((p, i) => b.pod('g' + i, p));
     b.text('l2', 830, 532, 'Workload scheduling', 'big center', 460);
-    b.text('l2s', 830, 600, 'Podのまとまりを見て、<br>全員の置き場所をまとめて決める', 'sub center', 460);
+    b.text('l2s', 830, 600, localize('Podのまとまりを見て、<br>全員の置き場所をまとめて決める', 'Consider the group and<br>place all its Pods together'), 'sub center', 460);
     b.hide('ar', 'band', 'g0', 'g1', 'g2', 'g3', 'l2', 'l2s');
   },
   steps: [
@@ -53,13 +53,13 @@ SCENES.thesis = {
 /* ---------- Schedulerの仕事 ---------- */
 SCENES.job = {
   build(b) {
-    b.text('lp', 150, 440, '新しいPod', 'mid center', 276);
+    b.text('lp', 150, 440, localize('新しいPod', 'New Pod'), 'mid center', 276);
     b.pod('p', [250, 500]);
-    b.chip('c', 166, 612, 'nodeName: <span style="opacity:.55">未定</span>', 'line');
+    b.chip('c', 166, 612, localize('nodeName: <span style="opacity:.55">未定</span>', 'nodeName: <span style="opacity:.55">unset</span>'), 'line');
     b.arrow('a1', [372, 538], [530, 538]);
     b.box('sch', 560, 398, 420, 280, 'ink',
       '<div style="padding:34px 38px"><div style="font:600 40px var(--font-code)">kube-scheduler</div>' +
-      '<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">どのNodeに置くか決める</div></div>');
+      localize('<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">どのNodeに置くか決める</div></div>', '<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">Choose a node</div></div>'));
     b.arrow('a2', [1000, 538], [1090, 538]);
     b.node('n1', 1120, 300, { cols: 3, label: 'node-1' });
     b.node('n2', 1120, 500, { cols: 3, label: 'node-2' });
@@ -78,13 +78,13 @@ SCENES.filter = {
   build(b) {
     const xs = [158, 466, 774, 1082], y = 600;
     b.pod('p', [724, 388]);
-    b.text('lp', 822, 406, 'このPodを置きたい', 'mid');
+    b.text('lp', 822, 406, localize('このPodを置きたい', 'Pod to schedule'), 'mid');
     xs.forEach((x, i) => b.node('n' + (i + 1), x, y, { cols: 3, label: 'node-' + (i + 1) }));
     ['n1:0', 'n1:1', 'n1:2', 'n3:0', 'n3:1'].forEach((s, i) => b.pod('f' + i, s, { c: 'g' }));
     b.pod(null, 'n2:0', { c: 'g' });
     b.badge('x1', xs[0] + 246, y - 34, 'ng').badge('x3', xs[2] + 246, y - 34, 'ng');
-    b.text('r1', xs[0], y + 152, '空きがない', 'center c-ng', 284);
-    b.text('r3', xs[2], y + 152, '条件に合わない<span class="tiny" style="display:block;color:var(--ng)">（taint など）</span>', 'center c-ng', 284);
+    b.text('r1', xs[0], y + 152, localize('空きがない', 'No capacity'), 'center c-ng', 284);
+    b.text('r3', xs[2], y + 152, localize('条件に合わない<span class="tiny" style="display:block;color:var(--ng)">（taint など）</span>', 'Constraints not met<span class="tiny" style="display:block;color:var(--ng)">(e.g. taints)</span>'), 'center c-ng', 284);
     b.score('s2', xs[1], y - 74, 284, '64').score('s4', xs[3], y - 74, 284, '90');
     b.hide('x1', 'x3', 'r1', 'r3', 's2', 's4');
   },
@@ -129,10 +129,10 @@ SCENES.onebyone = {
 /* ---------- 全員そろわないと始まらない ---------- */
 SCENES.idle = {
   build(b) {
-    b.band('job', 124, 444, 398, 128, 'dotted', '学習Job: Worker ×4');
+    b.band('job', 124, 444, 398, 128, 'dotted', localize('学習Job: Worker ×4', 'Training Job: 4 workers'));
     row(150, 470, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
-    b.text('need', 124, 596, 'Pod 1つにつき GPU 1枚が必要', 'sub');
-    b.text('free', 700, 396, '空いているGPUは3枚', 'mid');
+    b.text('need', 124, 596, localize('Pod 1つにつき GPU 1枚が必要', 'Each Pod needs 1 GPU'), 'sub');
+    b.text('free', 700, 396, localize('空いているGPUは3枚', '3 GPUs available'), 'mid');
     b.node('n1', 700, 470, { label: 'GPU Node 1' }).node('n2', 950, 470, { label: 'GPU Node 2' });
     b.pod(null, 'n1:0', { c: 'g' });
     b.chip('pend', 404, 366, 'Pending', 'ng').hide('pend');
@@ -147,11 +147,11 @@ SCENES.idle = {
 /* ---------- 2つのJobが取り合う ---------- */
 SCENES.deadlock = {
   build(b) {
-    b.band('ja', 124, 354, 398, 128, 'dotted', 'Job A: 4つ必要');
-    b.band('jb', 124, 584, 398, 128, 'dotted b', 'Job B: 4つ必要');
+    b.band('ja', 124, 354, 398, 128, 'dotted', localize('Job A: 4つ必要', 'Job A: needs 4 GPUs'));
+    b.band('jb', 124, 584, 398, 128, 'dotted b', localize('Job B: 4つ必要', 'Job B: needs 4 GPUs'));
     row(150, 380, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
     row(150, 610, 4).forEach((p, i) => b.pod('b' + (i + 1), p, { c: 'b', label: 'B', cls: 'act' }));
-    b.text('free', 760, 416, '空いているGPUは6枚', 'mid');
+    b.text('free', 760, 416, localize('空いているGPUは6枚', '6 GPUs available'), 'mid');
     b.node('n1', 760, 490, { label: 'GPU Node 1' }).node('n2', 990, 490, { label: 'GPU Node 2' }).node('n3', 1220, 490, { label: 'GPU Node 3' });
     b.chip('ca', 540, 400, '3 / 4', 'ng').chip('cb', 540, 630, '3 / 4', 'ng').hide('ca', 'cb');
   },
@@ -174,13 +174,13 @@ SCENES.api = {
     const loose = [[860, 400], [990, 540], [1120, 420], [1230, 560]];
     loose.forEach((p, i) => b.pod('p' + i, p));
     b.band('pg', 820, 460, 398, 128, '', 'PodGroup');
-    b.text('tpg', 1256, 478, '一緒に置きたい<br>Podのまとまり', 'mid');
+    b.text('tpg', 1256, 478, localize('一緒に置きたい<br>Podのまとまり', 'Pods to schedule<br>as a group'), 'mid');
     b.box('wl', 110, 404, 470, 240, '',
       '<div style="padding:30px 36px"><div style="font:600 40px var(--font-code)">Workload</div>' +
-      '<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">方針を書いた設計図</div>' +
+      localize('<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">方針を書いた設計図</div>', '<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">A template with policies</div>') +
       '<span class="chip">gang: minCount 4</span></div>');
     b.arrow('ar', [600, 524], [796, 524]);
-    b.text('tar', 598, 470, 'この方針で作る', 'tiny center', 200);
+    b.text('tar', 598, 470, localize('この方針で作る', 'Uses this template'), 'tiny center', 200);
     b.hide('pg', 'tpg', 'wl', 'ar', 'tar');
   },
   steps: [
@@ -195,13 +195,13 @@ SCENES.gang = {
   build(b) {
     b.band('pg', 124, 464, 398, 128, '', 'PodGroup  minCount: 4');
     row(150, 490, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
-    b.box('q', 580, 448, 300, 160, '', '<div class="txt mid center" style="padding:30px 0">4つ全部<br>置ける？</div>');
+    b.box('q', 580, 448, 300, 160, '', localize('<div class="txt mid center" style="padding:30px 0">4つ全部<br>置ける？</div>', '<div class="txt mid center" style="padding:30px 0">Do all<br>4 Pods fit?</div>'));
     b.badge('ng', 848, 420, 'ng').badge('ok', 848, 420, 'ok');
-    b.text('v1', 450, 636, '空きは3つ。<b>1つも置かない</b>', 'mid center', 560);
-    b.text('v2', 450, 636, '空きが4つ。<b>全員を同時に置く</b>', 'mid center', 560);
+    b.text('v1', 450, 636, localize('空きは3つ。<b>1つも置かない</b>', '3 slots free. <b>Schedule none</b>'), 'mid center', 560);
+    b.text('v2', 450, 636, localize('空きが4つ。<b>全員を同時に置く</b>', '4 slots free. <b>Schedule all</b>'), 'mid center', 560);
     b.node('n1', 1000, 490, { label: 'GPU Node 1' }).node('n2', 1230, 490, { label: 'GPU Node 2' });
     b.pod('x', 'n1:0', { c: 'g' });
-    b.chip('done', 1000, 416, '他のPodが終了', 'jp line');
+    b.chip('done', 1000, 416, localize('他のPodが終了', 'Another Pod finishes'), 'jp line');
     b.hide('ng', 'ok', 'v1', 'v2', 'done');
   },
   steps: [
@@ -224,12 +224,12 @@ SCENES.cycle = {
     b.band('pg', 130, 476, 398, 128, '', 'PodGroup');
     row(156, 502, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
     b.pod(null, [156, 622], { c: 'g' }).pod(null, [246, 622], { c: 'g' });
-    b.text('ls', 346, 644, '単体のPod', 'tiny');
+    b.text('ls', 346, 644, localize('単体のPod', 'Single Pod'), 'tiny');
     b.box('snap', 660, 440, 800, 250, 'zone');
-    b.chip('csnap', 684, 418, 'まだ確定ではない', 'jp ink');
+    b.chip('csnap', 684, 418, localize('まだ確定ではない', 'Tentative placement'), 'jp ink');
     b.node('n1', 700, 520).node('n2', 970, 520).node('n3', 1240, 520);
     b.pod(null, 'n1:0', { c: 'g' }).pod(null, 'n3:1', { c: 'g' });
-    b.text('chk', 660, 704, '4 / 4 置ける', 'big center', 800);
+    b.text('chk', 660, 704, localize('4 / 4 置ける', 'All 4 Pods fit'), 'big center', 800);
     b.badge('ok', 1210, 698, 'ok');
     b.hide('snap', 'csnap', 'chk', 'ok');
   },
@@ -287,8 +287,8 @@ SCENES.tasHow = {
       b.box('rk' + n, x, y, 300, 268, 'rack');
       b.text('rl' + n, x + 22, y + 12, 'Rack ' + n, 'tiny');
       b.node('r' + n + 'a', x + 42, y + 58, o).node('r' + n + 'b', x + 42, y + 160, o);
-      b.chip('cand' + n, x + 150, y - 22, '候補 ' + n, 'jp ink');
-      b.score('s' + n, x, y + 290, 300, n === 2 ? '90<span style="font-size:28px;font-weight:600"> 点</span>' : '60<span style="font-size:28px;font-weight:600"> 点</span>');
+      b.chip('cand' + n, x + localize(150, 90), y - 22, localize('候補 ', 'Candidate ') + n, 'jp ink');
+      b.score('s' + n, x, y + 290, 300, n === 2 ? localize('90<span style="font-size:28px;font-weight:600"> 点</span>', '90<span style="font-size:28px;font-weight:600"> pts</span>') : localize('60<span style="font-size:28px;font-weight:600"> 点</span>', '60<span style="font-size:28px;font-weight:600"> pts</span>'));
     });
     ['r1a:0', 'r1a:1', 'r1a:2', 'r1b:0'].forEach((s, i) => b.pod('q' + i, s, { c: 'g', cls: 'sm' }));
     ['r2a:0', 'r2a:1'].forEach(s => b.pod(null, s, { c: 'g', cls: 'sm' }));
@@ -298,7 +298,7 @@ SCENES.tasHow = {
     const gh = { g1: ['r1b:1', 'r1b:2'], g2: ['r2a:2', 'r2b:0', 'r2b:1', 'r2b:2'], g3: ['r3a:0', 'r3a:1', 'r3a:2', 'r3b:0'] };
     Object.keys(gh).forEach(k => gh[k].forEach((s, i) => b.pod(k + i, s, { cls: 'sm ghost', hide: true })));
     b.badge('ng1', xs[0] + 262, y - 30, 'ng').badge('ok2', xs[1] + 262, y - 30, 'ok').badge('ok3', xs[2] + 262, y - 30, 'ok');
-    b.text('f1', xs[0], y + 290, '2 / 4 しか置けない', 'center c-ng', 300);
+    b.text('f1', xs[0], y + 290, localize('2 / 4 しか置けない', 'Only 2 / 4 fit'), 'center c-ng', 300);
     b.hide('cand1', 'cand2', 'cand3', 's1', 's2', 's3', 'ng1', 'ok2', 'ok3', 'f1');
   },
   steps: [
@@ -327,11 +327,11 @@ SCENES.preemptPod = {
     b.text('lq', 96, 392, 'Scheduling Queue', 'tiny');
     b.box('lane', 96, 440, 420, 160, 'lane');
     b.pod('h', [268, 482], { c: 'h', label: 'H', hide: true, cls: 'act' });
-    b.chip('ch', 96, 622, '優先度: 高', 'jp rose').hide('ch');
-    b.chip('cb', 700, 404, '学習Job B（優先度: 低）', 'jp amber');
+    b.chip('ch', 96, 622, localize('優先度: 高', 'High priority'), 'jp rose').hide('ch');
+    b.chip('cb', 700, 404, localize('学習Job B（優先度: 低）', 'Training Job B (low priority)'), 'jp amber');
     b.node('n1', 700, 480, { label: 'GPU Node 1' }).node('n2', 950, 480, { label: 'GPU Node 2' });
     ['n1:0', 'n1:1', 'n2:0', 'n2:1'].forEach((s, i) => b.pod('b' + (i + 1), s, { c: 'b', label: 'B', cls: 'act' }));
-    b.chip('ev', 850, 322, '追い出される', 'jp ng').hide('ev');
+    b.chip('ev', 850, 322, localize('追い出される', 'Preempted'), 'jp ng').hide('ev');
   },
   steps: [
     t => t.cls(['b1', 'b2', 'b3', 'b4'], 'run'),   // 学習Job B は、4つそろって働いている
@@ -351,18 +351,18 @@ SCENES.wap = {
     b.text('lq', 96, 372, 'Scheduling Queue', 'tiny');
     b.box('lane', 96, 420, 440, 200, 'lane');
     b.band('bh', 124, 466, 218, 128, 'h', 'PodGroup H');
-    b.chip('hp', 362, 508, '優先度: 高', 'jp rose');
+    b.chip('hp', 362, 508, localize('優先度: 高', 'High priority'), 'jp rose');
     b.pod('h1', [150, 492], { c: 'h', label: 'H', cls: 'act' }).pod('h2', [240, 492], { c: 'h', label: 'H', cls: 'act' });
-    b.text('rule', 96, 640, '追い出すのは、H全員の場所が空くときだけ', 'tiny');
+    b.text('rule', 96, 640, localize('追い出すのは、H全員の場所が空くときだけ', 'Preempt only if all of H can fit'), 'tiny');
     b.node('n1', 760, 492, { label: 'GPU Node 1' }).node('n2', 1050, 492, { label: 'GPU Node 2' });
     b.band('bb', 732, 458, 540, 190, 'b', 'PodGroup B  disruptionMode: all');
     ['n1:0', 'n1:1', 'n2:0', 'n2:1'].forEach((s, i) => b.pod('b' + (i + 1), s, { c: 'b', label: 'B', cls: 'act' }));
-    b.text('deleted', 732, 372, 'PodGroup BのPodをすべて削除する', 'sub center', 540);
-    b.text('freed', 1050, 662, '空いた2枚は、すぐ他のPodが使える', 'tiny');
+    b.text('deleted', 732, 372, localize('PodGroup BのPodをすべて削除する', 'Delete all Pods in PodGroup B'), 'sub center', 540);
+    b.text('freed', 1050, 662, localize('空いた2枚は、すぐ他のPodが使える', '2 GPUs are free for other Pods'), 'tiny');
     b.chip('m1', 700, 764, 'disruptionMode: all', 'amber');
-    b.text('m1t', 1044, 768, '全員まとめて（学習Jobなど）', 'sub');
+    b.text('m1t', 1044, 768, localize('全員まとめて（学習Jobなど）', 'All together (e.g. training)'), 'sub');
     b.chip('m2', 700, 830, 'disruptionMode: single', 'line');
-    b.text('m2t', 1094, 834, '1 Podずつ（推論サービスなど）', 'sub');
+    b.text('m2t', 1094, 834, localize('1 Podずつ（推論サービスなど）', 'One Pod at a time (e.g. inference)'), 'sub');
     b.hide('bh', 'hp', 'h1', 'h2', 'rule', 'deleted', 'freed', 'm1', 'm1t', 'm2', 'm2t');
   },
   steps: [

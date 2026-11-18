@@ -1,6 +1,6 @@
 # Kubernetes Schedulingの最前線から見る景色（CloudNative Days Winter 2026）
 
-20分のキーノート用スライドです。`index.html` 1ファイルで完結しています（フォントと2枚目のプロフィール画像も埋め込み済み）。資料の表示に外部ファイルは不要です。コメントを有効にしているときは、ブラウザからコメントサーバへ polling します。
+20分のキーノート用スライドです。日本語版は `index.html`、英語版は `en.html` です。各ファイルにフォントと2枚目のプロフィール画像を埋め込んでいるので、それぞれ単独で表示できます。右上の `English` / `日本語` で、スライド番号とクエリ設定を引き継いで切り替えられます（言語を切り替えると、そのスライドの最初のステップから表示します）。コメントを有効にしているときは、ブラウザからコメントサーバへ polling します。
 
 スライド、コメント投稿・管理ページ、配信サーバ、OSS Showcase 用の Kubernetes マニフェストをこのリポジトリで管理しています。
 
@@ -15,13 +15,38 @@ python3 showcase/render.py
 python3 comments/render.py
 ```
 
-`index.html`、`showcase/apps/sanposhiho/`、`comments/apps/comments/` が生成されます。生成物もコミットしているので、clone 直後でも `index.html` をブラウザで開けます。スライドだけをビルドし直す場合は `node build.mjs` を使います。
+`index.html`、`en.html`、`showcase/apps/sanposhiho/`、`comments/apps/comments/` が生成されます。生成物もコミットしているので、clone 直後でも両言語のHTMLをブラウザで開けます。スライドだけをビルドし直す場合は `node build.mjs` を使います。
 
 管理用の合言葉を手元の `comments/.admin-token` に保存する場合、そのファイルは `.gitignore` で除外されます。YAML に入るのは SHA-256 だけです。
 
 ## 置き方
 
-`index.html` を静的ホスティング（GitHub Pages など）に置くだけです。手元ではファイルをブラウザで直接開いても動きます。
+`index.html` と `en.html` を同じディレクトリに置いて静的ホスティングできます。手元ではファイルをブラウザで直接開いても動きます。
+
+### GitHub Pages に公開する
+
+`.github/workflows/pages.yml` が両言語をビルドし、GitHub Pages に公開します。公開用ディレクトリ `_site/` に入れるのは2つのHTMLとフォントのライセンスだけです。
+
+1. リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にする。
+2. この変更を `main` に push する。以後、スライドのソース・画像・フォント・ビルド設定の更新時に自動公開されます。
+3. 初回や再公開は **Actions → Deploy slides to GitHub Pages → Run workflow** からも実行できます。
+
+| 言語 | 公開後のURL |
+| --- | --- |
+| 日本語 | `https://sanposhiho.github.io/cndw2026/` |
+| English | `https://sanposhiho.github.io/cndw2026/en.html` |
+
+特定のスライドは `en.html#p12` のように共有できます。コメントを無効にして共有するときは `en.html?comments=off#p12` です。GitHub Pages が配信するのは静的な資料で、コメントは既存の OSS Showcase のコメントサーバを使います。サーバが停止していても資料は表示できます。
+
+公開用ファイルを手元で確認する場合：
+
+```sh
+node build.mjs --out-dir _site
+cp fonts/LICENSE-IBM-Plex.txt _site/LICENSE-IBM-Plex.txt
+python3 -m http.server 8000 --directory _site
+```
+
+`http://localhost:8000/` と `http://localhost:8000/en.html` を開きます。GitHub側の設定は [GitHub Pages の公式ガイド](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) を参照してください。
 
 ### OSS Showcase で資料も公開する
 
@@ -44,6 +69,8 @@ python3 showcase/render.py
 ```
 
 `showcase/server.js` は Node.js の標準ライブラリだけで `/`・`/index.html`・`/healthz` を配信します。公式の `node:22-alpine` を使い、コードとHTMLは ConfigMap に含めるため、独自イメージのビルドやレジストリへの push は不要です。gzip 配信と ETag に対応し、HTMLを更新するとチェックサムによって Pod も更新されます。
+
+OSS Showcase は従来どおり日本語版を配信します。2言語分のHTMLを同じConfigMapに含めると1MiB上限を超えるため、`showcase/render.py` は埋め込む日本語版の `English` リンクを GitHub Pages の英語版へ向けます。このリンクを使う前に GitHub Pages を公開してください。表紙と自己紹介の資料用QRコードは、両言語とも従来の OSS Showcase の日本語版を指します。
 
 HTMLを含むConfigMapは1MiB以内に制限しています。通常の client-side apply では `last-applied-configuration` annotation の256KiB上限を超えるため、ローカルでは `--server-side` を使います。公開用ConfigMapにも Argo CD の `ServerSideApply=true` を指定しています。[Argo CD の説明](https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/#server-side-apply)
 
@@ -192,13 +219,14 @@ OSS Showcase に出すのと同じYAMLを、Docker Desktop の Kubernetes で動
 
 ## 編集する
 
-- スライドの文言を少し直すだけなら、`index.html` の `<section class="slide">` を直接編集できます。
-- 図や構成を変えるなら `src/` を編集して `node build.mjs`（Node.js のみ、依存パッケージなし）。`index.html` が作り直されます。
+- 本文は日本語版 `src/slides.html`、英語版 `src/slides.en.html` を編集します。同じスライドの `data-key`・`data-scene`・ステップ構成を両言語でそろえてください。
+- 図と動作は共通の `src/scenes.js`・`src/engine.js`、見た目は `src/deck.css` です。図・操作メニューの文言は `localize('日本語', 'English')` で切り替えます。
+- `node build.mjs`（Node.js のみ、依存パッケージなし）で `index.html` と `en.html` を作り直します。生成済みHTMLへの直接編集は次回ビルドで上書きされるため、ソースを編集してください。
 - 図の中のPodに `cls: 'act'` を付けると、働いているかどうかのメーターが出ます。`t.cls(id, 'run')` で動き出し、外すと止まります（`src/scenes.js` の先頭に説明があります）。16枚目の線の上を動く点は、線の種類（`ng` は遅い、`ok` は速い）で速さが決まります。
 
 | ファイル | 中身 |
 | --- | --- |
-| `src/slides.html` | スライド本体。`data-s="2"` を付けた要素はステップ2で現れる。`data-key` はスライドの識別名（個別のスタイル指定にも使う） |
+| `src/slides.html` / `src/slides.en.html` | 日本語版 / 英語版のスライド本体。`data-s="2"` を付けた要素はステップ2で現れる。`data-key` はスライドの識別名（個別のスタイル指定にも使う） |
 | `src/scenes.js` | 図の定義。部品（Pod、Node、PodGroupの枠）の配置と、ステップごとの動き |
 | `src/deck.css` | 見た目。先頭の `:root` に色とフォントをまとめてある |
 | `src/engine.js` | スライド送り、コメント表示、図を動かす仕組み |
@@ -217,6 +245,6 @@ OSS Showcase に出すのと同じYAMLを、Docker Desktop の Kubernetes で動
 - **2枚目**：所属は「???」にしてあります。
 - **コメントを流す場合**：サーバのYAMLが OSS Showcase にマージされているか、本番のURLでスマホから投稿してスライドに流れるか、`C` と管理ページで消えるかを、会場のネットワークで確かめてください。使わないと決めたら、`build.mjs` の `COMMENTS_URL` を `''` にして作り直すと、機能ごと外れます。
 - **3枚目**：SIG Scheduling と Tech Lead の説明です。Tech Lead の仕事は3つに絞ってあります（KEP のレビューと承認、実装のレビューと承認、リリースに何を入れるか）。
-- **4枚目のグラフ**：各リリース日の時点で、`kep.yaml` の `latest-milestone` がそのリリースになっている SIG Scheduling の KEP を数えたものです（kubernetes/enhancements、v1.38 は 2026-11-06 時点）。Release Team の公式な追跡リストとは一致しない可能性があります。数字は `src/slides.html` の4枚目の `data-kep` を直すだけで、棒、ラベル、平均が作り直されます。
+- **4枚目のグラフ**：各リリース日の時点で、`kep.yaml` の `latest-milestone` がそのリリースになっている SIG Scheduling の KEP を数えたものです（kubernetes/enhancements、v1.38 は 2026-11-06 時点）。Release Team の公式な追跡リストとは一致しない可能性があります。数字は `src/slides.html` と `src/slides.en.html` の4枚目の `data-kep` を同じ値に直すと、棒、ラベル、平均が作り直されます。
 - **25枚目（この先の景色）**：v1.37 のブログ「Advancing Workload-Aware Scheduling」の What's next、KEP-4671 の Future plans、KEP-5732 の Future Extensions、KEP-6089 の対応コントローラ一覧をまとめたものです。「賢くする」の中身は KEP に構想として書かれている段階です。「固める」（GA）は、コードフリーズ後の状態に合わせて言い方を変えてください。
 - **5枚目**：DRA 以外の3つ（Gateway API Inference Extension、Agent Sandbox、AI Conformance）は 2026-11 時点の kubernetes/community の sigs.yaml と各リポジトリで確認した内容です。載せる顔ぶれは好みで入れ替えてください。

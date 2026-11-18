@@ -3,6 +3,7 @@
    ・スライドは <section class="slide">。data-s="2" を付けた要素はステップ2で現れる
    ・図は SCENES に登録した定義（build と steps）から組み立てる
    ===================================================================== */
+const localize = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
 const SCENES = {};
 
 class Scene {
@@ -191,7 +192,7 @@ class Scene {
 
 const Deck = (() => {
   const W = 1920, H = 1080;
-  const TRACK = ['Gang', 'Topology', 'Preemption', '階層'];   // 機能パートの現在地表示（スライドの data-track="2" など）
+  const TRACK = ['Gang', 'Topology', 'Preemption', localize('階層', 'Hierarchy')];   // 機能パートの現在地表示（スライドの data-track="2" など）
   let deck, slides = [], cur = 0, step = 0, started = false;
   let toolsTimer = null;
   const $ = id => document.getElementById(id);
@@ -261,6 +262,11 @@ const Deck = (() => {
       `<span class="${i + 1 === tr ? 'cur' : i + 1 <= Math.floor(tr) ? 'done' : ''}">${name}</span>`).join('');
     $('rail-dots').innerHTML = s._n ? Array.from({ length: s._n }, (_, i) => `<i class="${i < k ? 'on' : ''}"></i>`).join('') : '';
     try { history.replaceState(null, '', '#p' + (n + 1)); } catch (e) { /* 埋め込み表示では使えないことがある */ }
+    const languageLink = $('b-lang');
+    const alternate = new URL(languageLink.getAttribute('href'), location.href);
+    alternate.search = location.search;
+    alternate.hash = '#p' + (n + 1);
+    languageLink.href = alternate.href;
   }
   const next = () => (step < slides[cur]._n ? show(cur, step + 1, 'fwd') : cur < slides.length - 1 && show(cur + 1, 0, 'fwd'));
   const prev = () => (step > 0 ? show(cur, step - 1, 'back') : cur > 0 && show(cur - 1, slides[cur - 1]._n, 'back'));
@@ -274,7 +280,7 @@ const Deck = (() => {
   /* ---- KEP の数のグラフ（積み上げ棒） ----
      データは figure の data-kep に [リリース, 年, WAS, DRA, その他] の並びで持つ。凡例・目盛り・棒・表はここで組み立てる */
   function buildKepCharts() {
-    const SER = [['w', 'WAS', 2], ['d', 'DRA', 3], ['o', 'その他', 4]], H = 460;   // 上から積む順。H は目盛りの上端までの高さ
+    const SER = [['w', 'WAS', 2], ['d', 'DRA', 3], ['o', localize('その他', 'Other'), 4]], H = 460;   // 上から積む順。H は目盛りの上端までの高さ
     document.querySelectorAll('.kchart[data-kep]').forEach(fig => {
       let rows; try { rows = JSON.parse(fig.dataset.kep); } catch (e) { return; }
       const tot = r => r[2] + r[3] + r[4];
@@ -292,20 +298,20 @@ const Deck = (() => {
           SER.slice().reverse().forEach(s => { const n = r[s[2]]; if (n * u >= 30) ends += `<div class="kend klate" style="--c:${below + n / 2}">${s[1]}<b>${n}</b></div>`; below += n; });
         }
         return `<div class="kcol" tabindex="0" style="--i:${i};--tot:${tot(r)}"><div class="kbar">${segs}</div>` +
-          `<div class="ktip">${esc(r[0])}　${tot(r)}本（${SER.map(s => `${s[1]} ${r[s[2]]}`).join('／')}）</div>${ends}<div class="kver">${esc(r[0])}</div></div>`;
+          `<div class="ktip">${esc(r[0])} ${localize(`${tot(r)}本`, `${tot(r)} KEPs`)} (${SER.map(s => `${s[1]} ${r[s[2]]}`).join(' / ')})</div>${ends}<div class="kver">${esc(r[0])}</div></div>`;
       }).join('');
       fig.setAttribute('role', 'group');
-      fig.setAttribute('aria-label', 'SIG Scheduling が持つ KEP の数（リリースごと）');
+      fig.setAttribute('aria-label', localize('SIG Scheduling が持つ KEP の数（リリースごと）', 'SIG Scheduling KEPs by release'));
       fig.innerHTML =
-        `<div class="klegend"><span><i class="w"></i>Workload-aware Scheduling（WAS）</span><span><i class="d"></i>DRA</span><span><i class="o"></i>その他</span></div>` +
+        `<div class="klegend"><span><i class="w"></i>Workload-aware Scheduling (WAS)</span><span><i class="d"></i>DRA</span><span><i class="o"></i>${localize('その他', 'Other')}</span></div>` +
         `<div class="kplot" aria-hidden="true" style="--u:${u}px;--top:${top};--cols:${rows.length}">` +
           `<div class="kgrid">${Array.from({ length: top / 5 }, (_, i) => `<span data-t="${i * 5}" style="--t:${i * 5}"></span>`).join('')}</div>` +
           `<div class="kcols">${cols}</div>` +
-          (nb ? `<div class="kbase klate" style="--k:${nb};--h:${Math.max(...base.map(tot))}"><span>平均 約${avg}本</span></div>` : '') +
-          `<div class="kyears">${years.map(y => `<span style="--k:${y[1]}">${y[0]}年</span>`).join('')}</div>` +
+          (nb ? `<div class="kbase klate" style="--k:${nb};--h:${Math.max(...base.map(tot))}"><span>${localize(`平均 約${avg}本`, `Average ≈ ${avg}`)}</span></div>` : '') +
+          `<div class="kyears">${years.map(y => `<span style="--k:${y[1]}">${localize(`${y[0]}年`, y[0])}</span>`).join('')}</div>` +
         `</div>` +
-        `<div class="sr-only"><table><caption>SIG Scheduling が持つ KEP の数（リリースごと）</caption><thead><tr><th>リリース</th><th>WAS</th><th>DRA</th><th>その他</th><th>合計</th></tr></thead><tbody>` +
-          rows.map(r => `<tr><th>${esc(r[0])}（${r[1]}年）</th><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${tot(r)}</td></tr>`).join('') + `</tbody></table></div>`;
+        `<div class="sr-only"><table><caption>${localize('SIG Scheduling が持つ KEP の数（リリースごと）', 'SIG Scheduling KEPs by release')}</caption><thead><tr><th>${localize('リリース', 'Release')}</th><th>WAS</th><th>DRA</th><th>${localize('その他', 'Other')}</th><th>${localize('合計', 'Total')}</th></tr></thead><tbody>` +
+          rows.map(r => `<tr><th>${esc(r[0])} (${localize(`${r[1]}年`, r[1])})</th><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${tot(r)}</td></tr>`).join('') + `</tbody></table></div>`;
     });
   }
 
@@ -464,16 +470,16 @@ const Deck = (() => {
   /* コメント一覧（すべて、古い順）。L キーで開く。コピーと保存ができる */
   const clMsg = t => { $('cl-msg').textContent = t; };
   let clArmed = false;
-  function clArm(on) { clArmed = on; $('cl').querySelector('[data-act="clear"]').textContent = on ? 'もう一度押すと、空にします' : '一覧を空にする'; }
+  function clArm(on) { clArmed = on; $('cl').querySelector('[data-act="clear"]').textContent = on ? localize('もう一度押すと、空にします', 'Click again to clear') : localize('一覧を空にする', 'Clear list'); }
   function cmShown() { return $('cl-q').checked ? CM.log.filter(c => cmIsQ(c.t)) : CM.log; }
   function cmDrawList(toEnd) {
     const ol = $('cl-list'), a = cmShown(), stick = toEnd || ol.scrollTop + ol.clientHeight >= ol.scrollHeight - 8;
-    $('cl-h').textContent = `コメント一覧（${CM.log.length}件${$('cl-q').checked ? `、うち「？」を含むもの ${a.length}件` : ''}）`;
-    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${c.n}枚目</i><span>${esc(cmDisplay(c))}</span></li>`).join('')
-      : '<li class="none">まだありません</li>';
+    $('cl-h').textContent = localize(`コメント一覧（${CM.log.length}件${$('cl-q').checked ? `、うち「？」を含むもの ${a.length}件` : ''}）`, `Comments (${CM.log.length}${$('cl-q').checked ? `, ${a.length} with question marks` : ''})`);
+    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${localize(`${c.n}枚目`, `Slide ${c.n}`)}</i><span>${esc(cmDisplay(c))}</span></li>`).join('')
+      : localize('<li class="none">まだありません</li>', '<li class="none">No comments yet</li>');
     if (stick) ol.scrollTop = ol.scrollHeight;   // いちばん新しいものが見える位置に
   }
-  const cmText = () => '時刻\tスライド\t名前\tコメント\n' + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${cmName(c)}\t${c.t}`).join('\n') + '\n';
+  const cmText = () => localize('時刻\tスライド\t名前\tコメント\n', 'Time\tSlide\tName\tComment\n') + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${cmName(c)}\t${c.t}`).join('\n') + '\n';
   function cmOpenList() {
     if (!CM.url) return;
     const cl = $('cl');
@@ -488,32 +494,32 @@ const Deck = (() => {
       const t = document.createElement('textarea'); t.value = text; t.style.cssText = 'position:fixed;left:-999px;top:0';
       document.body.appendChild(t); t.select(); let ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { /* 使えない表示 */ }
-      t.remove(); clMsg(ok ? `${n}件をコピーしました。` : 'コピーできませんでした。「comments.txt を保存」を使ってください。');
+      t.remove(); clMsg(ok ? localize(`${n}件をコピーしました。`, `Copied ${n} comments.`) : localize('コピーできませんでした。「comments.txt を保存」を使ってください。', 'Copy failed. Use “Save comments.txt”.'));
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => clMsg(`${n}件をコピーしました。`), byHand);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => clMsg(localize(`${n}件をコピーしました。`, `Copied ${n} comments.`)), byHand);
     else byHand();
   }
   function cmSaveList() {
-    const data = cmText(), n = cmShown().length, fail = () => clMsg('保存できませんでした。「コピー」を使ってください。');
+    const data = cmText(), n = cmShown().length, fail = () => clMsg(localize('保存できませんでした。「コピー」を使ってください。', 'Save failed. Use “Copy”.'));
     if (!window.claude || typeof window.claude.use !== 'function') {
       try {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([data], { type: 'text/plain' })); a.download = 'comments.txt';
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-        clMsg(`${n}件を comments.txt に書き出しました。`);
+        clMsg(localize(`${n}件を comments.txt に書き出しました。`, `Saved ${n} comments to comments.txt.`));
       } catch (e) { fail(); }
       return;
     }
     Promise.resolve().then(() => window.claude.use('downloads')).then(d => {
-      if (!d) return clMsg('この表示では保存できません。「コピー」を使ってください。');
-      return d.save({ filename: 'comments.txt', data }).then(() => clMsg(`${n}件を comments.txt に保存しました。`), e => (e && e.code === 'declined' ? clMsg('保存をやめました。') : fail()));
+      if (!d) return clMsg(localize('この表示では保存できません。「コピー」を使ってください。', 'Saving is unavailable here. Use “Copy”.'));
+      return d.save({ filename: 'comments.txt', data }).then(() => clMsg(localize(`${n}件を comments.txt に保存しました。`, `Saved ${n} comments to comments.txt.`)), e => (e && e.code === 'declined' ? clMsg(localize('保存をやめました。', 'Save canceled.')) : fail()));
     }).catch(fail);
   }
   function cmClearList() {
     if (!clArmed) return clArm(true);
     CM.log = []; cmSaveLog(); clArm(false); cmDrawList(true);
-    clMsg('一覧を空にしました。');
+    clMsg(localize('一覧を空にしました。', 'List cleared.'));
   }
 
   async function cmPoll() {
@@ -546,7 +552,7 @@ const Deck = (() => {
     CM.on = !CM.on;
     if (!CM.on) cmClear();
     cmPaint();
-    toast(CM.on ? 'コメント表示 オン' : 'コメント表示 オフ');
+    toast(CM.on ? localize('コメント表示 オン', 'Comments on') : localize('コメント表示 オフ', 'Comments off'));
   }
   function toast(text) {
     const t = $('toast'); if (!t) return;

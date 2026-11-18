@@ -18,7 +18,10 @@ if not re.fullmatch(r"[a-z0-9]([-a-z0-9]{0,57}[a-z0-9])?", name):
 subprocess.run(["node", "build.mjs"], cwd=root, check=True)
 data = {
     "server.js": (here / "server.js").read_text(encoding="utf-8"),
-    "index.html": (root / "index.html").read_text(encoding="utf-8"),
+    # 英語版は GitHub Pages へ。2言語分を入れると ConfigMap の1MiB上限を超える。
+    "index.html": (root / "index.html").read_text(encoding="utf-8").replace(
+        'href="en.html"', 'href="https://sanposhiho.github.io/cndw2026/en.html"'
+    ),
 }
 size = sum(len(text.encode()) for text in data.values())
 if size > 1024 * 1024:

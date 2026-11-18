@@ -427,8 +427,19 @@ b, strong { font-weight: 700; }
 .closing h1 { top: 330px; font-size: 168px; letter-spacing: 0; }
 
 /* ---------- 操作まわり（スライドの外） ---------- */
-#tools { position: fixed; right: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); display: flex; gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
+#tools { position: fixed; right: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); display: flex; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 28px); gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
 #tools.show { opacity: 1; }
+#tools:focus-within { opacity: 1; }
+#b-lang { position: fixed; right: 14px; top: 14px; z-index: 50; display: grid; place-items: center;
+  min-width: 44px; min-height: 44px; padding: 8px 14px; border-radius: 10px; color: #fff;
+  background: rgba(14, 26, 58, .82); border: 1px solid rgba(255,255,255,.25);
+  font: 600 14px var(--font-display); text-decoration: none; }
+#b-lang:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
+
+/* 英語の表紙も右側のQRコードの手前に収める。 */
+html[lang="en"] .cover:not(.closing) h1 { font-size: 82px; max-width: 1320px; }
+html[lang="en"] .effort.main .nb { white-space: normal; }
+@media print { #b-lang { display: none !important; } }
 #tools button { font: 600 14px var(--font-display); color: #fff; background: rgba(14, 26, 58, .82); border: 1px solid rgba(255,255,255,.25);
   border-radius: 10px; padding: 10px 14px; cursor: pointer; min-width: 44px; min-height: 44px; }
 #tools button:focus-visible, #ov button:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
@@ -502,6 +513,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
 #help { position: fixed; left: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); z-index: 50; color: #C9D4EE; background: rgba(14, 26, 58, .82); border-radius: 10px; padding: 10px 14px;
   font-size: 13px; line-height: 1.6; opacity: 0; transition: opacity .25s linear; pointer-events: none; }
 #help.show { opacity: 1; }
+html[lang="en"] #help { bottom: calc(74px + var(--comment-bar-height, 0px)); }
 
 @media (hover: none), (max-width: 900px) { #help { display: none; } }   /* タッチ端末ではキー操作の案内を出さない */
 

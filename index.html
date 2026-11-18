@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kubernetes Schedulingの最前線から見る景色</title>
+<link rel="alternate" hreflang="en" href="en.html">
 <style>
 /* =====================================================================
    Kubernetes Schedulingの最前線から見る景色 — CloudNative Days Winter 2026
@@ -434,8 +435,19 @@ b, strong { font-weight: 700; }
 .closing h1 { top: 330px; font-size: 168px; letter-spacing: 0; }
 
 /* ---------- 操作まわり（スライドの外） ---------- */
-#tools { position: fixed; right: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); display: flex; gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
+#tools { position: fixed; right: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); display: flex; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 28px); gap: 8px; z-index: 50; opacity: 0; transition: opacity .25s linear; }
 #tools.show { opacity: 1; }
+#tools:focus-within { opacity: 1; }
+#b-lang { position: fixed; right: 14px; top: 14px; z-index: 50; display: grid; place-items: center;
+  min-width: 44px; min-height: 44px; padding: 8px 14px; border-radius: 10px; color: #fff;
+  background: rgba(14, 26, 58, .82); border: 1px solid rgba(255,255,255,.25);
+  font: 600 14px var(--font-display); text-decoration: none; }
+#b-lang:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
+
+/* 英語の表紙も右側のQRコードの手前に収める。 */
+html[lang="en"] .cover:not(.closing) h1 { font-size: 82px; max-width: 1320px; }
+html[lang="en"] .effort.main .nb { white-space: normal; }
+@media print { #b-lang { display: none !important; } }
 #tools button { font: 600 14px var(--font-display); color: #fff; background: rgba(14, 26, 58, .82); border: 1px solid rgba(255,255,255,.25);
   border-radius: 10px; padding: 10px 14px; cursor: pointer; min-width: 44px; min-height: 44px; }
 #tools button:focus-visible, #ov button:focus-visible { outline: 3px solid #8FB0FF; outline-offset: 2px; }
@@ -509,6 +521,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
 #help { position: fixed; left: 14px; bottom: calc(14px + var(--comment-bar-height, 0px)); z-index: 50; color: #C9D4EE; background: rgba(14, 26, 58, .82); border-radius: 10px; padding: 10px 14px;
   font-size: 13px; line-height: 1.6; opacity: 0; transition: opacity .25s linear; pointer-events: none; }
 #help.show { opacity: 1; }
+html[lang="en"] #help { bottom: calc(74px + var(--comment-bar-height, 0px)); }
 
 @media (hover: none), (max-width: 900px) { #help { display: none; } }   /* タッチ端末ではキー操作の案内を出さない */
 
@@ -597,7 +610,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
   <h1>Kubernetes Schedulingの<br>最前線から見る景色</h1>
   <div class="who">Kensei Nakada<small>@sanposhiho</small><small>Kubernetes SIG Scheduling Tech Lead</small></div>
   <div class="scene" data-scene="title"></div>
-  <div class="qr-links"><a class="qr-card cmqr" href="https://comments.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="コメント投稿ページのQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM8 0h5v1h-5zM17 0h3v1h-3zM22 0h2v1h-2zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM23 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM13 2h1v1h-1zM15 2h3v1h-3zM19 2h2v1h-2zM23 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h1v1h-1zM16 3h2v1h-2zM19 3h1v1h-1zM22 3h2v1h-2zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h2v1h-2zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h1v1h-1zM16 5h2v1h-2zM19 5h2v1h-2zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM12 7h7v1h-7zM21 7h2v1h-2zM24 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM5 8h6v1h-6zM12 8h2v1h-2zM15 8h2v1h-2zM20 8h2v1h-2zM23 8h5v1h-5zM29 8h2v1h-2zM32 8h1v1h-1zM1 9h3v1h-3zM7 9h1v1h-1zM9 9h3v1h-3zM13 9h3v1h-3zM17 9h1v1h-1zM20 9h3v1h-3zM24 9h4v1h-4zM31 9h2v1h-2zM0 10h1v1h-1zM3 10h2v1h-2zM6 10h2v1h-2zM11 10h2v1h-2zM15 10h2v1h-2zM18 10h2v1h-2zM22 10h1v1h-1zM26 10h3v1h-3zM30 10h3v1h-3zM1 11h2v1h-2zM4 11h1v1h-1zM8 11h3v1h-3zM12 11h5v1h-5zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h2v1h-2zM32 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM6 12h2v1h-2zM15 12h2v1h-2zM18 12h2v1h-2zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h2v1h-2zM29 12h1v1h-1zM31 12h2v1h-2zM0 13h1v1h-1zM5 13h1v1h-1zM8 13h3v1h-3zM13 13h2v1h-2zM16 13h1v1h-1zM19 13h4v1h-4zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM5 14h3v1h-3zM9 14h3v1h-3zM14 14h2v1h-2zM17 14h1v1h-1zM23 14h1v1h-1zM25 14h5v1h-5zM31 14h1v1h-1zM1 15h1v1h-1zM5 15h1v1h-1zM7 15h2v1h-2zM13 15h1v1h-1zM15 15h4v1h-4zM21 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM31 15h1v1h-1zM0 16h7v1h-7zM10 16h3v1h-3zM15 16h2v1h-2zM18 16h1v1h-1zM20 16h5v1h-5zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM2 17h2v1h-2zM5 17h1v1h-1zM7 17h5v1h-5zM13 17h1v1h-1zM16 17h3v1h-3zM21 17h5v1h-5zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM3 18h5v1h-5zM10 18h2v1h-2zM14 18h1v1h-1zM16 18h3v1h-3zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h1v1h-1zM30 18h3v1h-3zM3 19h1v1h-1zM9 19h2v1h-2zM12 19h1v1h-1zM16 19h1v1h-1zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM31 19h2v1h-2zM0 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM12 20h4v1h-4zM19 20h1v1h-1zM21 20h1v1h-1zM24 20h2v1h-2zM27 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h5v1h-5zM20 21h3v1h-3zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h2v1h-2zM5 22h2v1h-2zM11 22h1v1h-1zM15 22h2v1h-2zM18 22h4v1h-4zM24 22h6v1h-6zM32 22h1v1h-1zM1 23h1v1h-1zM5 23h1v1h-1zM8 23h2v1h-2zM12 23h3v1h-3zM21 23h2v1h-2zM24 23h1v1h-1zM28 23h2v1h-2zM32 23h1v1h-1zM0 24h1v1h-1zM3 24h1v1h-1zM5 24h2v1h-2zM8 24h4v1h-4zM13 24h1v1h-1zM16 24h7v1h-7zM24 24h5v1h-5zM31 24h1v1h-1zM8 25h2v1h-2zM13 25h1v1h-1zM16 25h1v1h-1zM18 25h3v1h-3zM22 25h3v1h-3zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM8 26h7v1h-7zM16 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h3v1h-3zM12 27h1v1h-1zM14 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM21 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM11 28h5v1h-5zM18 28h5v1h-5zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h4v1h-4zM13 29h2v1h-2zM17 29h1v1h-1zM20 29h1v1h-1zM22 29h3v1h-3zM26 29h1v1h-1zM28 29h4v1h-4zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h2v1h-2zM18 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h5v1h-5zM16 31h1v1h-1zM19 31h1v1h-1zM21 31h2v1h-2zM24 31h1v1h-1zM0 32h7v1h-7zM9 32h2v1h-2zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h2v1h-2zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>質問やコメントはこちら！</b><span>comments.showcase.cloudnativedays.jp</span></p></a><a class="qr-card slides-qr" href="https://sanposhiho.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="スライド資料のQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM9 0h3v1h-3zM13 0h3v1h-3zM17 0h3v1h-3zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h7v1h-7zM18 1h1v1h-1zM22 1h3v1h-3zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM22 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h8v1h-8zM20 3h1v1h-1zM22 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h2v1h-2zM14 4h1v1h-1zM17 4h4v1h-4zM22 4h2v1h-2zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h2v1h-2zM13 5h1v1h-1zM15 5h5v1h-5zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM11 7h1v1h-1zM15 7h4v1h-4zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM13 8h2v1h-2zM16 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM27 8h1v1h-1zM1 9h1v1h-1zM3 9h3v1h-3zM10 9h1v1h-1zM12 9h2v1h-2zM16 9h3v1h-3zM20 9h2v1h-2zM24 9h4v1h-4zM31 9h2v1h-2zM1 10h3v1h-3zM5 10h4v1h-4zM12 10h3v1h-3zM18 10h2v1h-2zM24 10h1v1h-1zM26 10h3v1h-3zM30 10h1v1h-1zM32 10h1v1h-1zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h2v1h-2zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM26 11h1v1h-1zM28 11h2v1h-2zM31 11h2v1h-2zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h1v1h-1zM10 12h2v1h-2zM14 12h3v1h-3zM18 12h1v1h-1zM20 12h3v1h-3zM24 12h3v1h-3zM29 12h1v1h-1zM31 12h2v1h-2zM2 13h3v1h-3zM7 13h1v1h-1zM9 13h2v1h-2zM12 13h1v1h-1zM14 13h2v1h-2zM17 13h2v1h-2zM20 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM2 14h1v1h-1zM6 14h1v1h-1zM13 14h1v1h-1zM15 14h2v1h-2zM19 14h1v1h-1zM22 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM2 15h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h3v1h-3zM20 15h2v1h-2zM26 15h1v1h-1zM31 15h1v1h-1zM4 16h4v1h-4zM9 16h1v1h-1zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM21 16h2v1h-2zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM9 17h1v1h-1zM12 17h2v1h-2zM17 17h1v1h-1zM23 17h2v1h-2zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM0 18h2v1h-2zM6 18h5v1h-5zM17 18h1v1h-1zM20 18h2v1h-2zM24 18h3v1h-3zM30 18h3v1h-3zM0 19h1v1h-1zM3 19h3v1h-3zM10 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM19 19h3v1h-3zM24 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM2 20h1v1h-1zM5 20h2v1h-2zM10 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM19 20h2v1h-2zM22 20h1v1h-1zM25 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h4v1h-4zM12 21h4v1h-4zM17 21h1v1h-1zM19 21h1v1h-1zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h5v1h-5zM6 22h1v1h-1zM8 22h2v1h-2zM12 22h1v1h-1zM16 22h4v1h-4zM25 22h3v1h-3zM29 22h2v1h-2zM32 22h1v1h-1zM1 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM14 23h2v1h-2zM18 23h5v1h-5zM27 23h3v1h-3zM0 24h1v1h-1zM4 24h3v1h-3zM9 24h3v1h-3zM14 24h1v1h-1zM16 24h2v1h-2zM20 24h2v1h-2zM23 24h7v1h-7zM31 24h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM13 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM21 25h4v1h-4zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM10 26h4v1h-4zM17 26h2v1h-2zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h3v1h-3zM17 27h2v1h-2zM20 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM10 28h1v1h-1zM12 28h2v1h-2zM18 28h1v1h-1zM20 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM12 29h5v1h-5zM18 29h2v1h-2zM23 29h1v1h-1zM26 29h1v1h-1zM28 29h2v1h-2zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h3v1h-3zM14 30h3v1h-3zM18 30h3v1h-3zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h5v1h-5zM17 31h6v1h-6zM24 31h1v1h-1zM0 32h7v1h-7zM8 32h1v1h-1zM10 32h1v1h-1zM13 32h1v1h-1zM15 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>スライド資料はこちら！</b><span>sanposhiho.showcase.cloudnativedays.jp</span></p></a></div>
+  <div class="qr-links"><a class="qr-card cmqr" href="https://comments.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="コメント投稿ページのQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM8 0h5v1h-5zM17 0h3v1h-3zM22 0h2v1h-2zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM23 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM13 2h1v1h-1zM15 2h3v1h-3zM19 2h2v1h-2zM23 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h1v1h-1zM16 3h2v1h-2zM19 3h1v1h-1zM22 3h2v1h-2zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h2v1h-2zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h1v1h-1zM16 5h2v1h-2zM19 5h2v1h-2zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM12 7h7v1h-7zM21 7h2v1h-2zM24 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM5 8h6v1h-6zM12 8h2v1h-2zM15 8h2v1h-2zM20 8h2v1h-2zM23 8h5v1h-5zM29 8h2v1h-2zM32 8h1v1h-1zM1 9h3v1h-3zM7 9h1v1h-1zM9 9h3v1h-3zM13 9h3v1h-3zM17 9h1v1h-1zM20 9h3v1h-3zM24 9h4v1h-4zM31 9h2v1h-2zM0 10h1v1h-1zM3 10h2v1h-2zM6 10h2v1h-2zM11 10h2v1h-2zM15 10h2v1h-2zM18 10h2v1h-2zM22 10h1v1h-1zM26 10h3v1h-3zM30 10h3v1h-3zM1 11h2v1h-2zM4 11h1v1h-1zM8 11h3v1h-3zM12 11h5v1h-5zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h2v1h-2zM32 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM6 12h2v1h-2zM15 12h2v1h-2zM18 12h2v1h-2zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h2v1h-2zM29 12h1v1h-1zM31 12h2v1h-2zM0 13h1v1h-1zM5 13h1v1h-1zM8 13h3v1h-3zM13 13h2v1h-2zM16 13h1v1h-1zM19 13h4v1h-4zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM5 14h3v1h-3zM9 14h3v1h-3zM14 14h2v1h-2zM17 14h1v1h-1zM23 14h1v1h-1zM25 14h5v1h-5zM31 14h1v1h-1zM1 15h1v1h-1zM5 15h1v1h-1zM7 15h2v1h-2zM13 15h1v1h-1zM15 15h4v1h-4zM21 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM31 15h1v1h-1zM0 16h7v1h-7zM10 16h3v1h-3zM15 16h2v1h-2zM18 16h1v1h-1zM20 16h5v1h-5zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM2 17h2v1h-2zM5 17h1v1h-1zM7 17h5v1h-5zM13 17h1v1h-1zM16 17h3v1h-3zM21 17h5v1h-5zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM3 18h5v1h-5zM10 18h2v1h-2zM14 18h1v1h-1zM16 18h3v1h-3zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h1v1h-1zM30 18h3v1h-3zM3 19h1v1h-1zM9 19h2v1h-2zM12 19h1v1h-1zM16 19h1v1h-1zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM31 19h2v1h-2zM0 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM12 20h4v1h-4zM19 20h1v1h-1zM21 20h1v1h-1zM24 20h2v1h-2zM27 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h5v1h-5zM20 21h3v1h-3zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h2v1h-2zM5 22h2v1h-2zM11 22h1v1h-1zM15 22h2v1h-2zM18 22h4v1h-4zM24 22h6v1h-6zM32 22h1v1h-1zM1 23h1v1h-1zM5 23h1v1h-1zM8 23h2v1h-2zM12 23h3v1h-3zM21 23h2v1h-2zM24 23h1v1h-1zM28 23h2v1h-2zM32 23h1v1h-1zM0 24h1v1h-1zM3 24h1v1h-1zM5 24h2v1h-2zM8 24h4v1h-4zM13 24h1v1h-1zM16 24h7v1h-7zM24 24h5v1h-5zM31 24h1v1h-1zM8 25h2v1h-2zM13 25h1v1h-1zM16 25h1v1h-1zM18 25h3v1h-3zM22 25h3v1h-3zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM8 26h7v1h-7zM16 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h3v1h-3zM12 27h1v1h-1zM14 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM21 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM11 28h5v1h-5zM18 28h5v1h-5zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h4v1h-4zM13 29h2v1h-2zM17 29h1v1h-1zM20 29h1v1h-1zM22 29h3v1h-3zM26 29h1v1h-1zM28 29h4v1h-4zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h2v1h-2zM18 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h5v1h-5zM16 31h1v1h-1zM19 31h1v1h-1zM21 31h2v1h-2zM24 31h1v1h-1zM0 32h7v1h-7zM9 32h2v1h-2zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h2v1h-2zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>質問やコメントはこちら！</b><span>comments.showcase.cloudnativedays.jp</span></p></a><a class="qr-card slides-qr" href="https://sanposhiho.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="スライド資料のQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM9 0h3v1h-3zM13 0h3v1h-3zM17 0h3v1h-3zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h7v1h-7zM18 1h1v1h-1zM22 1h3v1h-3zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM22 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h8v1h-8zM20 3h1v1h-1zM22 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h2v1h-2zM14 4h1v1h-1zM17 4h4v1h-4zM22 4h2v1h-2zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h2v1h-2zM13 5h1v1h-1zM15 5h5v1h-5zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM11 7h1v1h-1zM15 7h4v1h-4zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM13 8h2v1h-2zM16 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM27 8h1v1h-1zM1 9h1v1h-1zM3 9h3v1h-3zM10 9h1v1h-1zM12 9h2v1h-2zM16 9h3v1h-3zM20 9h2v1h-2zM24 9h4v1h-4zM31 9h2v1h-2zM1 10h3v1h-3zM5 10h4v1h-4zM12 10h3v1h-3zM18 10h2v1h-2zM24 10h1v1h-1zM26 10h3v1h-3zM30 10h1v1h-1zM32 10h1v1h-1zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h2v1h-2zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM26 11h1v1h-1zM28 11h2v1h-2zM31 11h2v1h-2zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h1v1h-1zM10 12h2v1h-2zM14 12h3v1h-3zM18 12h1v1h-1zM20 12h3v1h-3zM24 12h3v1h-3zM29 12h1v1h-1zM31 12h2v1h-2zM2 13h3v1h-3zM7 13h1v1h-1zM9 13h2v1h-2zM12 13h1v1h-1zM14 13h2v1h-2zM17 13h2v1h-2zM20 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM2 14h1v1h-1zM6 14h1v1h-1zM13 14h1v1h-1zM15 14h2v1h-2zM19 14h1v1h-1zM22 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM2 15h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h3v1h-3zM20 15h2v1h-2zM26 15h1v1h-1zM31 15h1v1h-1zM4 16h4v1h-4zM9 16h1v1h-1zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM21 16h2v1h-2zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM9 17h1v1h-1zM12 17h2v1h-2zM17 17h1v1h-1zM23 17h2v1h-2zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM0 18h2v1h-2zM6 18h5v1h-5zM17 18h1v1h-1zM20 18h2v1h-2zM24 18h3v1h-3zM30 18h3v1h-3zM0 19h1v1h-1zM3 19h3v1h-3zM10 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM19 19h3v1h-3zM24 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM2 20h1v1h-1zM5 20h2v1h-2zM10 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM19 20h2v1h-2zM22 20h1v1h-1zM25 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h4v1h-4zM12 21h4v1h-4zM17 21h1v1h-1zM19 21h1v1h-1zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h5v1h-5zM6 22h1v1h-1zM8 22h2v1h-2zM12 22h1v1h-1zM16 22h4v1h-4zM25 22h3v1h-3zM29 22h2v1h-2zM32 22h1v1h-1zM1 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM14 23h2v1h-2zM18 23h5v1h-5zM27 23h3v1h-3zM0 24h1v1h-1zM4 24h3v1h-3zM9 24h3v1h-3zM14 24h1v1h-1zM16 24h2v1h-2zM20 24h2v1h-2zM23 24h7v1h-7zM31 24h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM13 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM21 25h4v1h-4zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM10 26h4v1h-4zM17 26h2v1h-2zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h3v1h-3zM17 27h2v1h-2zM20 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM10 28h1v1h-1zM12 28h2v1h-2zM18 28h1v1h-1zM20 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM12 29h5v1h-5zM18 29h2v1h-2zM23 29h1v1h-1zM26 29h1v1h-1zM28 29h2v1h-2zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h3v1h-3zM14 30h3v1h-3zM18 30h3v1h-3zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h5v1h-5zM17 31h6v1h-6zM24 31h1v1h-1zM0 32h7v1h-7zM8 32h1v1h-1zM10 32h1v1h-1zM13 32h1v1h-1zM15 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>スライド資料はこちら！</b><span>sanposhiho.showcase.cloudnativedays.jp</span></p></a></div>
 </section>
 
 <!-- 2 -->
@@ -617,7 +630,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
       </div>
     </div>
   </div>
-  <div class="qr-links"><a class="qr-card cmqr" href="https://comments.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="コメント投稿ページのQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM8 0h5v1h-5zM17 0h3v1h-3zM22 0h2v1h-2zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM23 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM13 2h1v1h-1zM15 2h3v1h-3zM19 2h2v1h-2zM23 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h1v1h-1zM16 3h2v1h-2zM19 3h1v1h-1zM22 3h2v1h-2zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h2v1h-2zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h1v1h-1zM16 5h2v1h-2zM19 5h2v1h-2zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM12 7h7v1h-7zM21 7h2v1h-2zM24 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM5 8h6v1h-6zM12 8h2v1h-2zM15 8h2v1h-2zM20 8h2v1h-2zM23 8h5v1h-5zM29 8h2v1h-2zM32 8h1v1h-1zM1 9h3v1h-3zM7 9h1v1h-1zM9 9h3v1h-3zM13 9h3v1h-3zM17 9h1v1h-1zM20 9h3v1h-3zM24 9h4v1h-4zM31 9h2v1h-2zM0 10h1v1h-1zM3 10h2v1h-2zM6 10h2v1h-2zM11 10h2v1h-2zM15 10h2v1h-2zM18 10h2v1h-2zM22 10h1v1h-1zM26 10h3v1h-3zM30 10h3v1h-3zM1 11h2v1h-2zM4 11h1v1h-1zM8 11h3v1h-3zM12 11h5v1h-5zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h2v1h-2zM32 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM6 12h2v1h-2zM15 12h2v1h-2zM18 12h2v1h-2zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h2v1h-2zM29 12h1v1h-1zM31 12h2v1h-2zM0 13h1v1h-1zM5 13h1v1h-1zM8 13h3v1h-3zM13 13h2v1h-2zM16 13h1v1h-1zM19 13h4v1h-4zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM5 14h3v1h-3zM9 14h3v1h-3zM14 14h2v1h-2zM17 14h1v1h-1zM23 14h1v1h-1zM25 14h5v1h-5zM31 14h1v1h-1zM1 15h1v1h-1zM5 15h1v1h-1zM7 15h2v1h-2zM13 15h1v1h-1zM15 15h4v1h-4zM21 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM31 15h1v1h-1zM0 16h7v1h-7zM10 16h3v1h-3zM15 16h2v1h-2zM18 16h1v1h-1zM20 16h5v1h-5zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM2 17h2v1h-2zM5 17h1v1h-1zM7 17h5v1h-5zM13 17h1v1h-1zM16 17h3v1h-3zM21 17h5v1h-5zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM3 18h5v1h-5zM10 18h2v1h-2zM14 18h1v1h-1zM16 18h3v1h-3zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h1v1h-1zM30 18h3v1h-3zM3 19h1v1h-1zM9 19h2v1h-2zM12 19h1v1h-1zM16 19h1v1h-1zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM31 19h2v1h-2zM0 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM12 20h4v1h-4zM19 20h1v1h-1zM21 20h1v1h-1zM24 20h2v1h-2zM27 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h5v1h-5zM20 21h3v1h-3zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h2v1h-2zM5 22h2v1h-2zM11 22h1v1h-1zM15 22h2v1h-2zM18 22h4v1h-4zM24 22h6v1h-6zM32 22h1v1h-1zM1 23h1v1h-1zM5 23h1v1h-1zM8 23h2v1h-2zM12 23h3v1h-3zM21 23h2v1h-2zM24 23h1v1h-1zM28 23h2v1h-2zM32 23h1v1h-1zM0 24h1v1h-1zM3 24h1v1h-1zM5 24h2v1h-2zM8 24h4v1h-4zM13 24h1v1h-1zM16 24h7v1h-7zM24 24h5v1h-5zM31 24h1v1h-1zM8 25h2v1h-2zM13 25h1v1h-1zM16 25h1v1h-1zM18 25h3v1h-3zM22 25h3v1h-3zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM8 26h7v1h-7zM16 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h3v1h-3zM12 27h1v1h-1zM14 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM21 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM11 28h5v1h-5zM18 28h5v1h-5zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h4v1h-4zM13 29h2v1h-2zM17 29h1v1h-1zM20 29h1v1h-1zM22 29h3v1h-3zM26 29h1v1h-1zM28 29h4v1h-4zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h2v1h-2zM18 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h5v1h-5zM16 31h1v1h-1zM19 31h1v1h-1zM21 31h2v1h-2zM24 31h1v1h-1zM0 32h7v1h-7zM9 32h2v1h-2zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h2v1h-2zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>質問やコメントはこちら！</b><span>comments.showcase.cloudnativedays.jp</span></p></a><a class="qr-card slides-qr" href="https://sanposhiho.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="スライド資料のQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM9 0h3v1h-3zM13 0h3v1h-3zM17 0h3v1h-3zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h7v1h-7zM18 1h1v1h-1zM22 1h3v1h-3zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM22 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h8v1h-8zM20 3h1v1h-1zM22 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h2v1h-2zM14 4h1v1h-1zM17 4h4v1h-4zM22 4h2v1h-2zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h2v1h-2zM13 5h1v1h-1zM15 5h5v1h-5zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM11 7h1v1h-1zM15 7h4v1h-4zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM13 8h2v1h-2zM16 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM27 8h1v1h-1zM1 9h1v1h-1zM3 9h3v1h-3zM10 9h1v1h-1zM12 9h2v1h-2zM16 9h3v1h-3zM20 9h2v1h-2zM24 9h4v1h-4zM31 9h2v1h-2zM1 10h3v1h-3zM5 10h4v1h-4zM12 10h3v1h-3zM18 10h2v1h-2zM24 10h1v1h-1zM26 10h3v1h-3zM30 10h1v1h-1zM32 10h1v1h-1zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h2v1h-2zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM26 11h1v1h-1zM28 11h2v1h-2zM31 11h2v1h-2zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h1v1h-1zM10 12h2v1h-2zM14 12h3v1h-3zM18 12h1v1h-1zM20 12h3v1h-3zM24 12h3v1h-3zM29 12h1v1h-1zM31 12h2v1h-2zM2 13h3v1h-3zM7 13h1v1h-1zM9 13h2v1h-2zM12 13h1v1h-1zM14 13h2v1h-2zM17 13h2v1h-2zM20 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM2 14h1v1h-1zM6 14h1v1h-1zM13 14h1v1h-1zM15 14h2v1h-2zM19 14h1v1h-1zM22 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM2 15h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h3v1h-3zM20 15h2v1h-2zM26 15h1v1h-1zM31 15h1v1h-1zM4 16h4v1h-4zM9 16h1v1h-1zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM21 16h2v1h-2zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM9 17h1v1h-1zM12 17h2v1h-2zM17 17h1v1h-1zM23 17h2v1h-2zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM0 18h2v1h-2zM6 18h5v1h-5zM17 18h1v1h-1zM20 18h2v1h-2zM24 18h3v1h-3zM30 18h3v1h-3zM0 19h1v1h-1zM3 19h3v1h-3zM10 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM19 19h3v1h-3zM24 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM2 20h1v1h-1zM5 20h2v1h-2zM10 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM19 20h2v1h-2zM22 20h1v1h-1zM25 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h4v1h-4zM12 21h4v1h-4zM17 21h1v1h-1zM19 21h1v1h-1zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h5v1h-5zM6 22h1v1h-1zM8 22h2v1h-2zM12 22h1v1h-1zM16 22h4v1h-4zM25 22h3v1h-3zM29 22h2v1h-2zM32 22h1v1h-1zM1 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM14 23h2v1h-2zM18 23h5v1h-5zM27 23h3v1h-3zM0 24h1v1h-1zM4 24h3v1h-3zM9 24h3v1h-3zM14 24h1v1h-1zM16 24h2v1h-2zM20 24h2v1h-2zM23 24h7v1h-7zM31 24h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM13 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM21 25h4v1h-4zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM10 26h4v1h-4zM17 26h2v1h-2zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h3v1h-3zM17 27h2v1h-2zM20 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM10 28h1v1h-1zM12 28h2v1h-2zM18 28h1v1h-1zM20 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM12 29h5v1h-5zM18 29h2v1h-2zM23 29h1v1h-1zM26 29h1v1h-1zM28 29h2v1h-2zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h3v1h-3zM14 30h3v1h-3zM18 30h3v1h-3zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h5v1h-5zM17 31h6v1h-6zM24 31h1v1h-1zM0 32h7v1h-7zM8 32h1v1h-1zM10 32h1v1h-1zM13 32h1v1h-1zM15 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>スライド資料はこちら！</b><span>sanposhiho.showcase.cloudnativedays.jp</span></p></a></div>
+  <div class="qr-links"><a class="qr-card cmqr" href="https://comments.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="コメント投稿ページのQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM8 0h5v1h-5zM17 0h3v1h-3zM22 0h2v1h-2zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM23 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM13 2h1v1h-1zM15 2h3v1h-3zM19 2h2v1h-2zM23 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h1v1h-1zM16 3h2v1h-2zM19 3h1v1h-1zM22 3h2v1h-2zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h2v1h-2zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h1v1h-1zM16 5h2v1h-2zM19 5h2v1h-2zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM12 7h7v1h-7zM21 7h2v1h-2zM24 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM5 8h6v1h-6zM12 8h2v1h-2zM15 8h2v1h-2zM20 8h2v1h-2zM23 8h5v1h-5zM29 8h2v1h-2zM32 8h1v1h-1zM1 9h3v1h-3zM7 9h1v1h-1zM9 9h3v1h-3zM13 9h3v1h-3zM17 9h1v1h-1zM20 9h3v1h-3zM24 9h4v1h-4zM31 9h2v1h-2zM0 10h1v1h-1zM3 10h2v1h-2zM6 10h2v1h-2zM11 10h2v1h-2zM15 10h2v1h-2zM18 10h2v1h-2zM22 10h1v1h-1zM26 10h3v1h-3zM30 10h3v1h-3zM1 11h2v1h-2zM4 11h1v1h-1zM8 11h3v1h-3zM12 11h5v1h-5zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h2v1h-2zM32 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM6 12h2v1h-2zM15 12h2v1h-2zM18 12h2v1h-2zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h2v1h-2zM29 12h1v1h-1zM31 12h2v1h-2zM0 13h1v1h-1zM5 13h1v1h-1zM8 13h3v1h-3zM13 13h2v1h-2zM16 13h1v1h-1zM19 13h4v1h-4zM24 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM5 14h3v1h-3zM9 14h3v1h-3zM14 14h2v1h-2zM17 14h1v1h-1zM23 14h1v1h-1zM25 14h5v1h-5zM31 14h1v1h-1zM1 15h1v1h-1zM5 15h1v1h-1zM7 15h2v1h-2zM13 15h1v1h-1zM15 15h4v1h-4zM21 15h1v1h-1zM23 15h1v1h-1zM26 15h1v1h-1zM31 15h1v1h-1zM0 16h7v1h-7zM10 16h3v1h-3zM15 16h2v1h-2zM18 16h1v1h-1zM20 16h5v1h-5zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM2 17h2v1h-2zM5 17h1v1h-1zM7 17h5v1h-5zM13 17h1v1h-1zM16 17h3v1h-3zM21 17h5v1h-5zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM3 18h5v1h-5zM10 18h2v1h-2zM14 18h1v1h-1zM16 18h3v1h-3zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h1v1h-1zM30 18h3v1h-3zM3 19h1v1h-1zM9 19h2v1h-2zM12 19h1v1h-1zM16 19h1v1h-1zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM31 19h2v1h-2zM0 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM12 20h4v1h-4zM19 20h1v1h-1zM21 20h1v1h-1zM24 20h2v1h-2zM27 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h5v1h-5zM20 21h3v1h-3zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h2v1h-2zM5 22h2v1h-2zM11 22h1v1h-1zM15 22h2v1h-2zM18 22h4v1h-4zM24 22h6v1h-6zM32 22h1v1h-1zM1 23h1v1h-1zM5 23h1v1h-1zM8 23h2v1h-2zM12 23h3v1h-3zM21 23h2v1h-2zM24 23h1v1h-1zM28 23h2v1h-2zM32 23h1v1h-1zM0 24h1v1h-1zM3 24h1v1h-1zM5 24h2v1h-2zM8 24h4v1h-4zM13 24h1v1h-1zM16 24h7v1h-7zM24 24h5v1h-5zM31 24h1v1h-1zM8 25h2v1h-2zM13 25h1v1h-1zM16 25h1v1h-1zM18 25h3v1h-3zM22 25h3v1h-3zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM8 26h7v1h-7zM16 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h3v1h-3zM12 27h1v1h-1zM14 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM21 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM11 28h5v1h-5zM18 28h5v1h-5zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h4v1h-4zM13 29h2v1h-2zM17 29h1v1h-1zM20 29h1v1h-1zM22 29h3v1h-3zM26 29h1v1h-1zM28 29h4v1h-4zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h2v1h-2zM18 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h5v1h-5zM16 31h1v1h-1zM19 31h1v1h-1zM21 31h2v1h-2zM24 31h1v1h-1zM0 32h7v1h-7zM9 32h2v1h-2zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h2v1h-2zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>質問やコメントはこちら！</b><span>comments.showcase.cloudnativedays.jp</span></p></a><a class="qr-card slides-qr" href="https://sanposhiho.showcase.cloudnativedays.jp/" target="_blank" rel="noopener noreferrer"><div class="qr" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 41 41" shape-rendering="crispEdges" role="img" aria-label="スライド資料のQRコード"><rect x="-4" y="-4" width="41" height="41" fill="#fff"/><path fill="#0E1A3A" d="M0 0h7v1h-7zM9 0h3v1h-3zM13 0h3v1h-3zM17 0h3v1h-3zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h7v1h-7zM18 1h1v1h-1zM22 1h3v1h-3zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM22 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h8v1h-8zM20 3h1v1h-1zM22 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h2v1h-2zM14 4h1v1h-1zM17 4h4v1h-4zM22 4h2v1h-2zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h2v1h-2zM13 5h1v1h-1zM15 5h5v1h-5zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM11 7h1v1h-1zM15 7h4v1h-4zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM13 8h2v1h-2zM16 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM27 8h1v1h-1zM1 9h1v1h-1zM3 9h3v1h-3zM10 9h1v1h-1zM12 9h2v1h-2zM16 9h3v1h-3zM20 9h2v1h-2zM24 9h4v1h-4zM31 9h2v1h-2zM1 10h3v1h-3zM5 10h4v1h-4zM12 10h3v1h-3zM18 10h2v1h-2zM24 10h1v1h-1zM26 10h3v1h-3zM30 10h1v1h-1zM32 10h1v1h-1zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h2v1h-2zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM26 11h1v1h-1zM28 11h2v1h-2zM31 11h2v1h-2zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h1v1h-1zM10 12h2v1h-2zM14 12h3v1h-3zM18 12h1v1h-1zM20 12h3v1h-3zM24 12h3v1h-3zM29 12h1v1h-1zM31 12h2v1h-2zM2 13h3v1h-3zM7 13h1v1h-1zM9 13h2v1h-2zM12 13h1v1h-1zM14 13h2v1h-2zM17 13h2v1h-2zM20 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM30 13h3v1h-3zM2 14h1v1h-1zM6 14h1v1h-1zM13 14h1v1h-1zM15 14h2v1h-2zM19 14h1v1h-1zM22 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM2 15h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h3v1h-3zM20 15h2v1h-2zM26 15h1v1h-1zM31 15h1v1h-1zM4 16h4v1h-4zM9 16h1v1h-1zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM21 16h2v1h-2zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM9 17h1v1h-1zM12 17h2v1h-2zM17 17h1v1h-1zM23 17h2v1h-2zM27 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM0 18h2v1h-2zM6 18h5v1h-5zM17 18h1v1h-1zM20 18h2v1h-2zM24 18h3v1h-3zM30 18h3v1h-3zM0 19h1v1h-1zM3 19h3v1h-3zM10 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM19 19h3v1h-3zM24 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM2 20h1v1h-1zM5 20h2v1h-2zM10 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM19 20h2v1h-2zM22 20h1v1h-1zM25 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h4v1h-4zM12 21h4v1h-4zM17 21h1v1h-1zM19 21h1v1h-1zM24 21h3v1h-3zM29 21h1v1h-1zM31 21h2v1h-2zM0 22h5v1h-5zM6 22h1v1h-1zM8 22h2v1h-2zM12 22h1v1h-1zM16 22h4v1h-4zM25 22h3v1h-3zM29 22h2v1h-2zM32 22h1v1h-1zM1 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM14 23h2v1h-2zM18 23h5v1h-5zM27 23h3v1h-3zM0 24h1v1h-1zM4 24h3v1h-3zM9 24h3v1h-3zM14 24h1v1h-1zM16 24h2v1h-2zM20 24h2v1h-2zM23 24h7v1h-7zM31 24h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM13 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM21 25h4v1h-4zM28 25h2v1h-2zM31 25h2v1h-2zM0 26h7v1h-7zM10 26h4v1h-4zM17 26h2v1h-2zM20 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h3v1h-3zM17 27h2v1h-2zM20 27h2v1h-2zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM10 28h1v1h-1zM12 28h2v1h-2zM18 28h1v1h-1zM20 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM12 29h5v1h-5zM18 29h2v1h-2zM23 29h1v1h-1zM26 29h1v1h-1zM28 29h2v1h-2zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h3v1h-3zM14 30h3v1h-3zM18 30h3v1h-3zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h5v1h-5zM17 31h6v1h-6zM24 31h1v1h-1zM0 32h7v1h-7zM8 32h1v1h-1zM10 32h1v1h-1zM13 32h1v1h-1zM15 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM24 32h2v1h-2zM28 32h2v1h-2zM31 32h1v1h-1z"/></svg></div><p><b>スライド資料はこちら！</b><span>sanposhiho.showcase.cloudnativedays.jp</span></p></a></div>
 </section>
 
 <!-- 3 -->
@@ -994,6 +1007,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
 </div></div>
 <div id="help">→ / Space 次へ　← 戻る　O 一覧　F 全画面　R もう一度動かす　B 暗転　C コメント表示　L コメント一覧</div>
 <div id="toast" role="status"></div>
+<a id="b-lang" href="en.html" lang="en" hreflang="en" aria-label="Switch to English">English</a>
 <div id="tools">
   <button type="button" id="b-prev">戻る</button>
   <button type="button" id="b-next">次へ</button>
@@ -1008,6 +1022,7 @@ body.cm-live .cmqr { opacity: 1; visibility: visible; transition-delay: 0s; }
    ・スライドは <section class="slide">。data-s="2" を付けた要素はステップ2で現れる
    ・図は SCENES に登録した定義（build と steps）から組み立てる
    ===================================================================== */
+const localize = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
 const SCENES = {};
 
 class Scene {
@@ -1196,7 +1211,7 @@ class Scene {
 
 const Deck = (() => {
   const W = 1920, H = 1080;
-  const TRACK = ['Gang', 'Topology', 'Preemption', '階層'];   // 機能パートの現在地表示（スライドの data-track="2" など）
+  const TRACK = ['Gang', 'Topology', 'Preemption', localize('階層', 'Hierarchy')];   // 機能パートの現在地表示（スライドの data-track="2" など）
   let deck, slides = [], cur = 0, step = 0, started = false;
   let toolsTimer = null;
   const $ = id => document.getElementById(id);
@@ -1266,6 +1281,11 @@ const Deck = (() => {
       `<span class="${i + 1 === tr ? 'cur' : i + 1 <= Math.floor(tr) ? 'done' : ''}">${name}</span>`).join('');
     $('rail-dots').innerHTML = s._n ? Array.from({ length: s._n }, (_, i) => `<i class="${i < k ? 'on' : ''}"></i>`).join('') : '';
     try { history.replaceState(null, '', '#p' + (n + 1)); } catch (e) { /* 埋め込み表示では使えないことがある */ }
+    const languageLink = $('b-lang');
+    const alternate = new URL(languageLink.getAttribute('href'), location.href);
+    alternate.search = location.search;
+    alternate.hash = '#p' + (n + 1);
+    languageLink.href = alternate.href;
   }
   const next = () => (step < slides[cur]._n ? show(cur, step + 1, 'fwd') : cur < slides.length - 1 && show(cur + 1, 0, 'fwd'));
   const prev = () => (step > 0 ? show(cur, step - 1, 'back') : cur > 0 && show(cur - 1, slides[cur - 1]._n, 'back'));
@@ -1279,7 +1299,7 @@ const Deck = (() => {
   /* ---- KEP の数のグラフ（積み上げ棒） ----
      データは figure の data-kep に [リリース, 年, WAS, DRA, その他] の並びで持つ。凡例・目盛り・棒・表はここで組み立てる */
   function buildKepCharts() {
-    const SER = [['w', 'WAS', 2], ['d', 'DRA', 3], ['o', 'その他', 4]], H = 460;   // 上から積む順。H は目盛りの上端までの高さ
+    const SER = [['w', 'WAS', 2], ['d', 'DRA', 3], ['o', localize('その他', 'Other'), 4]], H = 460;   // 上から積む順。H は目盛りの上端までの高さ
     document.querySelectorAll('.kchart[data-kep]').forEach(fig => {
       let rows; try { rows = JSON.parse(fig.dataset.kep); } catch (e) { return; }
       const tot = r => r[2] + r[3] + r[4];
@@ -1297,20 +1317,20 @@ const Deck = (() => {
           SER.slice().reverse().forEach(s => { const n = r[s[2]]; if (n * u >= 30) ends += `<div class="kend klate" style="--c:${below + n / 2}">${s[1]}<b>${n}</b></div>`; below += n; });
         }
         return `<div class="kcol" tabindex="0" style="--i:${i};--tot:${tot(r)}"><div class="kbar">${segs}</div>` +
-          `<div class="ktip">${esc(r[0])}　${tot(r)}本（${SER.map(s => `${s[1]} ${r[s[2]]}`).join('／')}）</div>${ends}<div class="kver">${esc(r[0])}</div></div>`;
+          `<div class="ktip">${esc(r[0])} ${localize(`${tot(r)}本`, `${tot(r)} KEPs`)} (${SER.map(s => `${s[1]} ${r[s[2]]}`).join(' / ')})</div>${ends}<div class="kver">${esc(r[0])}</div></div>`;
       }).join('');
       fig.setAttribute('role', 'group');
-      fig.setAttribute('aria-label', 'SIG Scheduling が持つ KEP の数（リリースごと）');
+      fig.setAttribute('aria-label', localize('SIG Scheduling が持つ KEP の数（リリースごと）', 'SIG Scheduling KEPs by release'));
       fig.innerHTML =
-        `<div class="klegend"><span><i class="w"></i>Workload-aware Scheduling（WAS）</span><span><i class="d"></i>DRA</span><span><i class="o"></i>その他</span></div>` +
+        `<div class="klegend"><span><i class="w"></i>Workload-aware Scheduling (WAS)</span><span><i class="d"></i>DRA</span><span><i class="o"></i>${localize('その他', 'Other')}</span></div>` +
         `<div class="kplot" aria-hidden="true" style="--u:${u}px;--top:${top};--cols:${rows.length}">` +
           `<div class="kgrid">${Array.from({ length: top / 5 }, (_, i) => `<span data-t="${i * 5}" style="--t:${i * 5}"></span>`).join('')}</div>` +
           `<div class="kcols">${cols}</div>` +
-          (nb ? `<div class="kbase klate" style="--k:${nb};--h:${Math.max(...base.map(tot))}"><span>平均 約${avg}本</span></div>` : '') +
-          `<div class="kyears">${years.map(y => `<span style="--k:${y[1]}">${y[0]}年</span>`).join('')}</div>` +
+          (nb ? `<div class="kbase klate" style="--k:${nb};--h:${Math.max(...base.map(tot))}"><span>${localize(`平均 約${avg}本`, `Average ≈ ${avg}`)}</span></div>` : '') +
+          `<div class="kyears">${years.map(y => `<span style="--k:${y[1]}">${localize(`${y[0]}年`, y[0])}</span>`).join('')}</div>` +
         `</div>` +
-        `<div class="sr-only"><table><caption>SIG Scheduling が持つ KEP の数（リリースごと）</caption><thead><tr><th>リリース</th><th>WAS</th><th>DRA</th><th>その他</th><th>合計</th></tr></thead><tbody>` +
-          rows.map(r => `<tr><th>${esc(r[0])}（${r[1]}年）</th><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${tot(r)}</td></tr>`).join('') + `</tbody></table></div>`;
+        `<div class="sr-only"><table><caption>${localize('SIG Scheduling が持つ KEP の数（リリースごと）', 'SIG Scheduling KEPs by release')}</caption><thead><tr><th>${localize('リリース', 'Release')}</th><th>WAS</th><th>DRA</th><th>${localize('その他', 'Other')}</th><th>${localize('合計', 'Total')}</th></tr></thead><tbody>` +
+          rows.map(r => `<tr><th>${esc(r[0])} (${localize(`${r[1]}年`, r[1])})</th><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${tot(r)}</td></tr>`).join('') + `</tbody></table></div>`;
     });
   }
 
@@ -1469,16 +1489,16 @@ const Deck = (() => {
   /* コメント一覧（すべて、古い順）。L キーで開く。コピーと保存ができる */
   const clMsg = t => { $('cl-msg').textContent = t; };
   let clArmed = false;
-  function clArm(on) { clArmed = on; $('cl').querySelector('[data-act="clear"]').textContent = on ? 'もう一度押すと、空にします' : '一覧を空にする'; }
+  function clArm(on) { clArmed = on; $('cl').querySelector('[data-act="clear"]').textContent = on ? localize('もう一度押すと、空にします', 'Click again to clear') : localize('一覧を空にする', 'Clear list'); }
   function cmShown() { return $('cl-q').checked ? CM.log.filter(c => cmIsQ(c.t)) : CM.log; }
   function cmDrawList(toEnd) {
     const ol = $('cl-list'), a = cmShown(), stick = toEnd || ol.scrollTop + ol.clientHeight >= ol.scrollHeight - 8;
-    $('cl-h').textContent = `コメント一覧（${CM.log.length}件${$('cl-q').checked ? `、うち「？」を含むもの ${a.length}件` : ''}）`;
-    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${c.n}枚目</i><span>${esc(cmDisplay(c))}</span></li>`).join('')
-      : '<li class="none">まだありません</li>';
+    $('cl-h').textContent = localize(`コメント一覧（${CM.log.length}件${$('cl-q').checked ? `、うち「？」を含むもの ${a.length}件` : ''}）`, `Comments (${CM.log.length}${$('cl-q').checked ? `, ${a.length} with question marks` : ''})`);
+    ol.innerHTML = a.length ? a.map(c => `<li${cmIsQ(c.t) ? ' class="q"' : ''}><time>${hms(c.at)}</time><i>${localize(`${c.n}枚目`, `Slide ${c.n}`)}</i><span>${esc(cmDisplay(c))}</span></li>`).join('')
+      : localize('<li class="none">まだありません</li>', '<li class="none">No comments yet</li>');
     if (stick) ol.scrollTop = ol.scrollHeight;   // いちばん新しいものが見える位置に
   }
-  const cmText = () => '時刻\tスライド\t名前\tコメント\n' + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${cmName(c)}\t${c.t}`).join('\n') + '\n';
+  const cmText = () => localize('時刻\tスライド\t名前\tコメント\n', 'Time\tSlide\tName\tComment\n') + cmShown().map(c => `${hms(c.at)}\t${c.n}\t${cmName(c)}\t${c.t}`).join('\n') + '\n';
   function cmOpenList() {
     if (!CM.url) return;
     const cl = $('cl');
@@ -1493,32 +1513,32 @@ const Deck = (() => {
       const t = document.createElement('textarea'); t.value = text; t.style.cssText = 'position:fixed;left:-999px;top:0';
       document.body.appendChild(t); t.select(); let ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { /* 使えない表示 */ }
-      t.remove(); clMsg(ok ? `${n}件をコピーしました。` : 'コピーできませんでした。「comments.txt を保存」を使ってください。');
+      t.remove(); clMsg(ok ? localize(`${n}件をコピーしました。`, `Copied ${n} comments.`) : localize('コピーできませんでした。「comments.txt を保存」を使ってください。', 'Copy failed. Use “Save comments.txt”.'));
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => clMsg(`${n}件をコピーしました。`), byHand);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => clMsg(localize(`${n}件をコピーしました。`, `Copied ${n} comments.`)), byHand);
     else byHand();
   }
   function cmSaveList() {
-    const data = cmText(), n = cmShown().length, fail = () => clMsg('保存できませんでした。「コピー」を使ってください。');
+    const data = cmText(), n = cmShown().length, fail = () => clMsg(localize('保存できませんでした。「コピー」を使ってください。', 'Save failed. Use “Copy”.'));
     if (!window.claude || typeof window.claude.use !== 'function') {
       try {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([data], { type: 'text/plain' })); a.download = 'comments.txt';
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-        clMsg(`${n}件を comments.txt に書き出しました。`);
+        clMsg(localize(`${n}件を comments.txt に書き出しました。`, `Saved ${n} comments to comments.txt.`));
       } catch (e) { fail(); }
       return;
     }
     Promise.resolve().then(() => window.claude.use('downloads')).then(d => {
-      if (!d) return clMsg('この表示では保存できません。「コピー」を使ってください。');
-      return d.save({ filename: 'comments.txt', data }).then(() => clMsg(`${n}件を comments.txt に保存しました。`), e => (e && e.code === 'declined' ? clMsg('保存をやめました。') : fail()));
+      if (!d) return clMsg(localize('この表示では保存できません。「コピー」を使ってください。', 'Saving is unavailable here. Use “Copy”.'));
+      return d.save({ filename: 'comments.txt', data }).then(() => clMsg(localize(`${n}件を comments.txt に保存しました。`, `Saved ${n} comments to comments.txt.`)), e => (e && e.code === 'declined' ? clMsg(localize('保存をやめました。', 'Save canceled.')) : fail()));
     }).catch(fail);
   }
   function cmClearList() {
     if (!clArmed) return clArm(true);
     CM.log = []; cmSaveLog(); clArm(false); cmDrawList(true);
-    clMsg('一覧を空にしました。');
+    clMsg(localize('一覧を空にしました。', 'List cleared.'));
   }
 
   async function cmPoll() {
@@ -1551,7 +1571,7 @@ const Deck = (() => {
     CM.on = !CM.on;
     if (!CM.on) cmClear();
     cmPaint();
-    toast(CM.on ? 'コメント表示 オン' : 'コメント表示 オフ');
+    toast(CM.on ? localize('コメント表示 オン', 'Comments on') : localize('コメント表示 オフ', 'Comments off'));
   }
   function toast(text) {
     const t = $('toast'); if (!t) return;
@@ -1665,12 +1685,12 @@ SCENES.thesis = {
   build(b) {
     b.pod('one', [344, 372], { cls: 'lg' });
     b.text('l1', 170, 532, 'Pod scheduling', 'big center', 460);
-    b.text('l1s', 170, 600, 'Podを1つずつ見て、<br>どのNodeに置くか決める', 'sub center', 460);
+    b.text('l1s', 170, 600, localize('Podを1つずつ見て、<br>どのNodeに置くか決める', 'Choose a node<br>for each Pod individually'), 'sub center', 460);
     b.arrow('ar', [650, 428], [810, 428]);
     b.band('band', 861, 364, 398, 128, '');
     row(887, 390, 4).forEach((p, i) => b.pod('g' + i, p));
     b.text('l2', 830, 532, 'Workload scheduling', 'big center', 460);
-    b.text('l2s', 830, 600, 'Podのまとまりを見て、<br>全員の置き場所をまとめて決める', 'sub center', 460);
+    b.text('l2s', 830, 600, localize('Podのまとまりを見て、<br>全員の置き場所をまとめて決める', 'Consider the group and<br>place all its Pods together'), 'sub center', 460);
     b.hide('ar', 'band', 'g0', 'g1', 'g2', 'g3', 'l2', 'l2s');
   },
   steps: [
@@ -1686,13 +1706,13 @@ SCENES.thesis = {
 /* ---------- Schedulerの仕事 ---------- */
 SCENES.job = {
   build(b) {
-    b.text('lp', 150, 440, '新しいPod', 'mid center', 276);
+    b.text('lp', 150, 440, localize('新しいPod', 'New Pod'), 'mid center', 276);
     b.pod('p', [250, 500]);
-    b.chip('c', 166, 612, 'nodeName: <span style="opacity:.55">未定</span>', 'line');
+    b.chip('c', 166, 612, localize('nodeName: <span style="opacity:.55">未定</span>', 'nodeName: <span style="opacity:.55">unset</span>'), 'line');
     b.arrow('a1', [372, 538], [530, 538]);
     b.box('sch', 560, 398, 420, 280, 'ink',
       '<div style="padding:34px 38px"><div style="font:600 40px var(--font-code)">kube-scheduler</div>' +
-      '<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">どのNodeに置くか決める</div></div>');
+      localize('<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">どのNodeに置くか決める</div></div>', '<div style="font-size:28px;margin-top:8px;color:#B9C6E6;font-weight:500;white-space:nowrap">Choose a node</div></div>'));
     b.arrow('a2', [1000, 538], [1090, 538]);
     b.node('n1', 1120, 300, { cols: 3, label: 'node-1' });
     b.node('n2', 1120, 500, { cols: 3, label: 'node-2' });
@@ -1711,13 +1731,13 @@ SCENES.filter = {
   build(b) {
     const xs = [158, 466, 774, 1082], y = 600;
     b.pod('p', [724, 388]);
-    b.text('lp', 822, 406, 'このPodを置きたい', 'mid');
+    b.text('lp', 822, 406, localize('このPodを置きたい', 'Pod to schedule'), 'mid');
     xs.forEach((x, i) => b.node('n' + (i + 1), x, y, { cols: 3, label: 'node-' + (i + 1) }));
     ['n1:0', 'n1:1', 'n1:2', 'n3:0', 'n3:1'].forEach((s, i) => b.pod('f' + i, s, { c: 'g' }));
     b.pod(null, 'n2:0', { c: 'g' });
     b.badge('x1', xs[0] + 246, y - 34, 'ng').badge('x3', xs[2] + 246, y - 34, 'ng');
-    b.text('r1', xs[0], y + 152, '空きがない', 'center c-ng', 284);
-    b.text('r3', xs[2], y + 152, '条件に合わない<span class="tiny" style="display:block;color:var(--ng)">（taint など）</span>', 'center c-ng', 284);
+    b.text('r1', xs[0], y + 152, localize('空きがない', 'No capacity'), 'center c-ng', 284);
+    b.text('r3', xs[2], y + 152, localize('条件に合わない<span class="tiny" style="display:block;color:var(--ng)">（taint など）</span>', 'Constraints not met<span class="tiny" style="display:block;color:var(--ng)">(e.g. taints)</span>'), 'center c-ng', 284);
     b.score('s2', xs[1], y - 74, 284, '64').score('s4', xs[3], y - 74, 284, '90');
     b.hide('x1', 'x3', 'r1', 'r3', 's2', 's4');
   },
@@ -1762,10 +1782,10 @@ SCENES.onebyone = {
 /* ---------- 全員そろわないと始まらない ---------- */
 SCENES.idle = {
   build(b) {
-    b.band('job', 124, 444, 398, 128, 'dotted', '学習Job: Worker ×4');
+    b.band('job', 124, 444, 398, 128, 'dotted', localize('学習Job: Worker ×4', 'Training Job: 4 workers'));
     row(150, 470, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
-    b.text('need', 124, 596, 'Pod 1つにつき GPU 1枚が必要', 'sub');
-    b.text('free', 700, 396, '空いているGPUは3枚', 'mid');
+    b.text('need', 124, 596, localize('Pod 1つにつき GPU 1枚が必要', 'Each Pod needs 1 GPU'), 'sub');
+    b.text('free', 700, 396, localize('空いているGPUは3枚', '3 GPUs available'), 'mid');
     b.node('n1', 700, 470, { label: 'GPU Node 1' }).node('n2', 950, 470, { label: 'GPU Node 2' });
     b.pod(null, 'n1:0', { c: 'g' });
     b.chip('pend', 404, 366, 'Pending', 'ng').hide('pend');
@@ -1780,11 +1800,11 @@ SCENES.idle = {
 /* ---------- 2つのJobが取り合う ---------- */
 SCENES.deadlock = {
   build(b) {
-    b.band('ja', 124, 354, 398, 128, 'dotted', 'Job A: 4つ必要');
-    b.band('jb', 124, 584, 398, 128, 'dotted b', 'Job B: 4つ必要');
+    b.band('ja', 124, 354, 398, 128, 'dotted', localize('Job A: 4つ必要', 'Job A: needs 4 GPUs'));
+    b.band('jb', 124, 584, 398, 128, 'dotted b', localize('Job B: 4つ必要', 'Job B: needs 4 GPUs'));
     row(150, 380, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
     row(150, 610, 4).forEach((p, i) => b.pod('b' + (i + 1), p, { c: 'b', label: 'B', cls: 'act' }));
-    b.text('free', 760, 416, '空いているGPUは6枚', 'mid');
+    b.text('free', 760, 416, localize('空いているGPUは6枚', '6 GPUs available'), 'mid');
     b.node('n1', 760, 490, { label: 'GPU Node 1' }).node('n2', 990, 490, { label: 'GPU Node 2' }).node('n3', 1220, 490, { label: 'GPU Node 3' });
     b.chip('ca', 540, 400, '3 / 4', 'ng').chip('cb', 540, 630, '3 / 4', 'ng').hide('ca', 'cb');
   },
@@ -1807,13 +1827,13 @@ SCENES.api = {
     const loose = [[860, 400], [990, 540], [1120, 420], [1230, 560]];
     loose.forEach((p, i) => b.pod('p' + i, p));
     b.band('pg', 820, 460, 398, 128, '', 'PodGroup');
-    b.text('tpg', 1256, 478, '一緒に置きたい<br>Podのまとまり', 'mid');
+    b.text('tpg', 1256, 478, localize('一緒に置きたい<br>Podのまとまり', 'Pods to schedule<br>as a group'), 'mid');
     b.box('wl', 110, 404, 470, 240, '',
       '<div style="padding:30px 36px"><div style="font:600 40px var(--font-code)">Workload</div>' +
-      '<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">方針を書いた設計図</div>' +
+      localize('<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">方針を書いた設計図</div>', '<div style="font-size:30px;font-weight:500;color:var(--ink-2);margin:6px 0 18px;white-space:nowrap">A template with policies</div>') +
       '<span class="chip">gang: minCount 4</span></div>');
     b.arrow('ar', [600, 524], [796, 524]);
-    b.text('tar', 598, 470, 'この方針で作る', 'tiny center', 200);
+    b.text('tar', 598, 470, localize('この方針で作る', 'Uses this template'), 'tiny center', 200);
     b.hide('pg', 'tpg', 'wl', 'ar', 'tar');
   },
   steps: [
@@ -1828,13 +1848,13 @@ SCENES.gang = {
   build(b) {
     b.band('pg', 124, 464, 398, 128, '', 'PodGroup  minCount: 4');
     row(150, 490, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
-    b.box('q', 580, 448, 300, 160, '', '<div class="txt mid center" style="padding:30px 0">4つ全部<br>置ける？</div>');
+    b.box('q', 580, 448, 300, 160, '', localize('<div class="txt mid center" style="padding:30px 0">4つ全部<br>置ける？</div>', '<div class="txt mid center" style="padding:30px 0">Do all<br>4 Pods fit?</div>'));
     b.badge('ng', 848, 420, 'ng').badge('ok', 848, 420, 'ok');
-    b.text('v1', 450, 636, '空きは3つ。<b>1つも置かない</b>', 'mid center', 560);
-    b.text('v2', 450, 636, '空きが4つ。<b>全員を同時に置く</b>', 'mid center', 560);
+    b.text('v1', 450, 636, localize('空きは3つ。<b>1つも置かない</b>', '3 slots free. <b>Schedule none</b>'), 'mid center', 560);
+    b.text('v2', 450, 636, localize('空きが4つ。<b>全員を同時に置く</b>', '4 slots free. <b>Schedule all</b>'), 'mid center', 560);
     b.node('n1', 1000, 490, { label: 'GPU Node 1' }).node('n2', 1230, 490, { label: 'GPU Node 2' });
     b.pod('x', 'n1:0', { c: 'g' });
-    b.chip('done', 1000, 416, '他のPodが終了', 'jp line');
+    b.chip('done', 1000, 416, localize('他のPodが終了', 'Another Pod finishes'), 'jp line');
     b.hide('ng', 'ok', 'v1', 'v2', 'done');
   },
   steps: [
@@ -1857,12 +1877,12 @@ SCENES.cycle = {
     b.band('pg', 130, 476, 398, 128, '', 'PodGroup');
     row(156, 502, 4).forEach((p, i) => b.pod('a' + (i + 1), p, { label: 'A', cls: 'act' }));
     b.pod(null, [156, 622], { c: 'g' }).pod(null, [246, 622], { c: 'g' });
-    b.text('ls', 346, 644, '単体のPod', 'tiny');
+    b.text('ls', 346, 644, localize('単体のPod', 'Single Pod'), 'tiny');
     b.box('snap', 660, 440, 800, 250, 'zone');
-    b.chip('csnap', 684, 418, 'まだ確定ではない', 'jp ink');
+    b.chip('csnap', 684, 418, localize('まだ確定ではない', 'Tentative placement'), 'jp ink');
     b.node('n1', 700, 520).node('n2', 970, 520).node('n3', 1240, 520);
     b.pod(null, 'n1:0', { c: 'g' }).pod(null, 'n3:1', { c: 'g' });
-    b.text('chk', 660, 704, '4 / 4 置ける', 'big center', 800);
+    b.text('chk', 660, 704, localize('4 / 4 置ける', 'All 4 Pods fit'), 'big center', 800);
     b.badge('ok', 1210, 698, 'ok');
     b.hide('snap', 'csnap', 'chk', 'ok');
   },
@@ -1920,8 +1940,8 @@ SCENES.tasHow = {
       b.box('rk' + n, x, y, 300, 268, 'rack');
       b.text('rl' + n, x + 22, y + 12, 'Rack ' + n, 'tiny');
       b.node('r' + n + 'a', x + 42, y + 58, o).node('r' + n + 'b', x + 42, y + 160, o);
-      b.chip('cand' + n, x + 150, y - 22, '候補 ' + n, 'jp ink');
-      b.score('s' + n, x, y + 290, 300, n === 2 ? '90<span style="font-size:28px;font-weight:600"> 点</span>' : '60<span style="font-size:28px;font-weight:600"> 点</span>');
+      b.chip('cand' + n, x + localize(150, 90), y - 22, localize('候補 ', 'Candidate ') + n, 'jp ink');
+      b.score('s' + n, x, y + 290, 300, n === 2 ? localize('90<span style="font-size:28px;font-weight:600"> 点</span>', '90<span style="font-size:28px;font-weight:600"> pts</span>') : localize('60<span style="font-size:28px;font-weight:600"> 点</span>', '60<span style="font-size:28px;font-weight:600"> pts</span>'));
     });
     ['r1a:0', 'r1a:1', 'r1a:2', 'r1b:0'].forEach((s, i) => b.pod('q' + i, s, { c: 'g', cls: 'sm' }));
     ['r2a:0', 'r2a:1'].forEach(s => b.pod(null, s, { c: 'g', cls: 'sm' }));
@@ -1931,7 +1951,7 @@ SCENES.tasHow = {
     const gh = { g1: ['r1b:1', 'r1b:2'], g2: ['r2a:2', 'r2b:0', 'r2b:1', 'r2b:2'], g3: ['r3a:0', 'r3a:1', 'r3a:2', 'r3b:0'] };
     Object.keys(gh).forEach(k => gh[k].forEach((s, i) => b.pod(k + i, s, { cls: 'sm ghost', hide: true })));
     b.badge('ng1', xs[0] + 262, y - 30, 'ng').badge('ok2', xs[1] + 262, y - 30, 'ok').badge('ok3', xs[2] + 262, y - 30, 'ok');
-    b.text('f1', xs[0], y + 290, '2 / 4 しか置けない', 'center c-ng', 300);
+    b.text('f1', xs[0], y + 290, localize('2 / 4 しか置けない', 'Only 2 / 4 fit'), 'center c-ng', 300);
     b.hide('cand1', 'cand2', 'cand3', 's1', 's2', 's3', 'ng1', 'ok2', 'ok3', 'f1');
   },
   steps: [
@@ -1960,11 +1980,11 @@ SCENES.preemptPod = {
     b.text('lq', 96, 392, 'Scheduling Queue', 'tiny');
     b.box('lane', 96, 440, 420, 160, 'lane');
     b.pod('h', [268, 482], { c: 'h', label: 'H', hide: true, cls: 'act' });
-    b.chip('ch', 96, 622, '優先度: 高', 'jp rose').hide('ch');
-    b.chip('cb', 700, 404, '学習Job B（優先度: 低）', 'jp amber');
+    b.chip('ch', 96, 622, localize('優先度: 高', 'High priority'), 'jp rose').hide('ch');
+    b.chip('cb', 700, 404, localize('学習Job B（優先度: 低）', 'Training Job B (low priority)'), 'jp amber');
     b.node('n1', 700, 480, { label: 'GPU Node 1' }).node('n2', 950, 480, { label: 'GPU Node 2' });
     ['n1:0', 'n1:1', 'n2:0', 'n2:1'].forEach((s, i) => b.pod('b' + (i + 1), s, { c: 'b', label: 'B', cls: 'act' }));
-    b.chip('ev', 850, 322, '追い出される', 'jp ng').hide('ev');
+    b.chip('ev', 850, 322, localize('追い出される', 'Preempted'), 'jp ng').hide('ev');
   },
   steps: [
     t => t.cls(['b1', 'b2', 'b3', 'b4'], 'run'),   // 学習Job B は、4つそろって働いている
@@ -1984,18 +2004,18 @@ SCENES.wap = {
     b.text('lq', 96, 372, 'Scheduling Queue', 'tiny');
     b.box('lane', 96, 420, 440, 200, 'lane');
     b.band('bh', 124, 466, 218, 128, 'h', 'PodGroup H');
-    b.chip('hp', 362, 508, '優先度: 高', 'jp rose');
+    b.chip('hp', 362, 508, localize('優先度: 高', 'High priority'), 'jp rose');
     b.pod('h1', [150, 492], { c: 'h', label: 'H', cls: 'act' }).pod('h2', [240, 492], { c: 'h', label: 'H', cls: 'act' });
-    b.text('rule', 96, 640, '追い出すのは、H全員の場所が空くときだけ', 'tiny');
+    b.text('rule', 96, 640, localize('追い出すのは、H全員の場所が空くときだけ', 'Preempt only if all of H can fit'), 'tiny');
     b.node('n1', 760, 492, { label: 'GPU Node 1' }).node('n2', 1050, 492, { label: 'GPU Node 2' });
     b.band('bb', 732, 458, 540, 190, 'b', 'PodGroup B  disruptionMode: all');
     ['n1:0', 'n1:1', 'n2:0', 'n2:1'].forEach((s, i) => b.pod('b' + (i + 1), s, { c: 'b', label: 'B', cls: 'act' }));
-    b.text('deleted', 732, 372, 'PodGroup BのPodをすべて削除する', 'sub center', 540);
-    b.text('freed', 1050, 662, '空いた2枚は、すぐ他のPodが使える', 'tiny');
+    b.text('deleted', 732, 372, localize('PodGroup BのPodをすべて削除する', 'Delete all Pods in PodGroup B'), 'sub center', 540);
+    b.text('freed', 1050, 662, localize('空いた2枚は、すぐ他のPodが使える', '2 GPUs are free for other Pods'), 'tiny');
     b.chip('m1', 700, 764, 'disruptionMode: all', 'amber');
-    b.text('m1t', 1044, 768, '全員まとめて（学習Jobなど）', 'sub');
+    b.text('m1t', 1044, 768, localize('全員まとめて（学習Jobなど）', 'All together (e.g. training)'), 'sub');
     b.chip('m2', 700, 830, 'disruptionMode: single', 'line');
-    b.text('m2t', 1094, 834, '1 Podずつ（推論サービスなど）', 'sub');
+    b.text('m2t', 1094, 834, localize('1 Podずつ（推論サービスなど）', 'One Pod at a time (e.g. inference)'), 'sub');
     b.hide('bh', 'hp', 'h1', 'h2', 'rule', 'deleted', 'freed', 'm1', 'm1t', 'm2', 'm2t');
   },
   steps: [
